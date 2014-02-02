@@ -31,8 +31,6 @@ you can use either tool and we will use `curl` for this exercise. A more detaile
 comparison of the two tools can be seen at
 [curl vs wget](http://daniel.haxx.se/docs/curl-vs-wget.html).
 
-grep ERROR filename | cut -f1,1 -d: | sort | uniq -c
-
 ### HTTP Logs Dataset
 
 For this exercise we will be using HTTP access logs from the 1998 Soccer
