@@ -1,28 +1,28 @@
 ## Exercises
 
 1. What are the 5 most frequently visited URLs ?
-
+```
     cat wc_day6_1.log| cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head -5
       18525 /images/space.gif
       14584 /images/home_intro.anim.gif
       14123 /
       11886 /images/hm_nbg.jpg
       11477 /images/dot.gif
-
+```
 2. Print the number of requests that had HTTP return code 404. Next break down
 number of 404 requests by date (i.e how many on 30th April and how many on 1st
 May).
-
+```
     wc_day6_1.log | cut -d ' ' -f 9 | grep 404 | wc -l
     1306
 
     cat wc_day6_1.log | cut -d ' ' -f 4,9 --output-delimiter=":" | cut -d ':' -f 1,5 --output-delimiter=" " | grep 404 | sort | uniq -c
     1221 [01/May/1998 404
     85 [30/Apr/1998 404
-
+```
 3. Print the number of HTTP requests that had return code 200 in each hour of
 the day.
-
+```
     cat wc_day6_1.log | cut -d ' ' -f 4,9 --output-delimiter=":" | cut -d ':' -f 2,5 --output-delimiter=" " | grep 404 | sort | uniq -c
          30 00 404
          73 01 404
@@ -48,12 +48,13 @@ the day.
          21 21 404
          51 22 404
          34 23 404
-
+```
 4. Finally print the top 5 URLs which did not have return code 200.
-
+```
     cat wc_day6_1.log | cut -d ' ' -f 7,9 | grep -v 200 | cut -d ' ' -f 1 | sort | uniq -c | sort -nr | head -10
        4158 /images/space.gif
        2605 /images/logo_cfo.gif
        2494 /images/nav_bg_top.gif
        2307 /images/home_intro.anim.gif
        2223 /english/index.html
+```
