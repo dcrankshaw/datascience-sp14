@@ -39,8 +39,9 @@ For this exercise we will be using HTTP access logs from the 1998 Soccer
 WorldCup website. The [complete
 dataset](http://ita.ee.lbl.gov/html/contrib/WorldCup.html) contains
 around 1.3 billion requests, and we will use a subset of it for this exercise.
-As a first step download the sample dataset from [FILL IN
-URL](http://example.com).
+As a first step download the sample dataset from
+[https://github.com/shivaram/datascience-labs/raw/master/lab1/wc_day6_1_log.tar.bz2]
+(https://github.com/shivaram/datascience-labs/raw/master/lab1/wc_day6_1_log.tar.bz2).
 
 The dataset has been compressed to make the download finish faster. To get the
 raw data unzip the downloaded file by running `tar -xf <filename>`. (Note: `tar`
