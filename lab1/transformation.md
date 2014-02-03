@@ -191,7 +191,7 @@ point.  Then we run:
 
 ``` 
 awk 'BEGIN { i = 0 } 
-     /^[A-Z]{3}$ { ++i } 
+     /^[A-Z]{3}$/ { ++i } 
      END { print i }' clean_worldcup.txt
 ```
 
