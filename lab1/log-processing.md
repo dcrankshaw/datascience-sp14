@@ -169,7 +169,7 @@ This shows that `/images/home_intro.anim.gif` occured twice in the first 50 URLs
 Now use the above tools to answer some analysis questions
 
 1. What are the 5 most frequently visited URLs ?
-2. Print the top 5 URLs which did not have return code 200.
+2. Print the top 10 URLs which did not have return code 200.
 2. Print the number of requests that had HTTP return code 404. Next break down
 number of 404 requests by date (i.e how many on 30th April and how many on 1st
 May).
