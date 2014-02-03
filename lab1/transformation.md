@@ -3,7 +3,7 @@
 In this exercise we will learn how to use command line tools to transform
 structured data into a clean CSV format.
 
-### Data
+### Dirty Data
 
 Data analysts spend a large fraction of their time cleaning and prepraring data
 for use.  The reason is simple:  given all the uses of data, it is natural for
@@ -57,8 +57,9 @@ will match all of `"sed"` and `"bed"` and `"1ed"`.
 Quantifiers match the preceding expression multiple times.  There are several
 quantifier expressions:
 
-* `*` matches the preceding expression 0 or more times `+` matches the prededing
-* expression 1 or more times `?` matches the preceding expression 0 or 1 times
+* `*` matches the preceding expression 0 or more times 
+* `+` matches the prededing expression 1 or more times 
+* `?` matches the preceding expression 0 or 1 times
 * `{n}` matches the preceding expression `n` times, where `n` is a number
 
 Combine wild cards with quantifiers to match arbitrary strings, e.g., `/.*ed/`
@@ -100,36 +101,48 @@ Substitution with `sed` is essentially an efficient way to perform search and
 replace on a file with regular expressions.  You can run a substitute command as
 follows:
 
-``` cat in.txt | sed 's/regexPattern/replacementString/flags' > out.txt ```
+``` 
+cat in.txt | sed 's/regexPattern/replacementString/flags' > out.txt 
+```
 
 Lets use substitution to start removing cruft from our file.  First, we will
 focus on lines that contain country codes (these look like `BRA`, `ITA`, `GER`,
 etc.).  These lines all look something like the following:
 
-``` |bgcolor=#FFF68F|{{fb|BRA}} ```
+``` 
+|bgcolor=#FFF68F|{{fb|BRA}} 
+```
 
 Here, the only piece of actual data is `BRA`, so we want to delete the rest.
 The cruft is a fixed string in all cases so we can use two simple regex
 patterns:
 
-``` cat worldcup.txt | sed 's/^|bgcolor=#FFF68F|{{fb|//' | sed 's/}}$//' ```
+``` 
+cat worldcup.txt | sed 's/^|bgcolor=#FFF68F|{{fb|//' | sed 's/}}$//' 
+```
 
 #### Line Deletion
 
 Another useful `sed` command is line deletion, i.e., delete all lines that match
 a regex pattern.  The syntax is:
 
-``` cat in.txt | sed '/regexPattern/d' > out.txt ```
+``` 
+cat in.txt | sed '/regexPattern/d' > out.txt 
+```
 
 In `worldcup.txt` there are many lines that do not contain content.  We will use
 `sed` delete to remove the footer lines from the file.  These lines all look
 something like the following:
 
-``` :<div id="1">''<nowiki>*</nowiki> = hosts'' ```
+``` 
+:<div id="1">''<nowiki>*</nowiki> = hosts'' 
+```
 
 We can use their common prefix, `":<div id="`, to match them.  Then we run:
 
-``` cat worldcup.txt | sed '/^:<div id="/d' ```
+``` 
+cat worldcup.txt | sed '/^:<div id="/d' 
+```
 
 #### Task
 
@@ -158,8 +171,13 @@ other great resources) online.
 
 The basic structure of an `awk` script is as follows:
 
-``` awk 'BEGIN { init } /pattern1/ { pattern1expr } /pattern2/ { pattern2expr }
-...  END { finish }' file.txt ```
+``` 
+awk 'BEGIN { init } 
+     /pattern1/ { pattern1expr } 
+     /pattern2/ { pattern2expr }
+     ...  
+     END { finish }' file.txt
+```
 
 Here, the code contained between curly braces are code expressions to be
 evaluated when the preceding pattern is matched.  `awk` loops over the input
@@ -171,7 +189,10 @@ To demonstrate a simple script, we will count the number of countries listed in
 `worldcup.txt`.  We assume country codes are all on their own line at this
 point.  Then we run:
 
-``` awk 'BEGIN { i = 0 } /^[A-Z]{3}$ { ++i } END { print i }' clean_worldcup.txt
+``` 
+awk 'BEGIN { i = 0 } 
+     /^[A-Z]{3}$ { ++i } 
+     END { print i }' clean_worldcup.txt
 ```
 
 This script initializes a counter, `i`, at the start, increments it on every
@@ -192,7 +213,10 @@ the field separator set, fields in a matched line become available to script
 code as the variables `$1, $2, ...`.  So the following two commands are
 equivalent:
 
-``` awk -F, '/.*/ { print $2 }' file cut -d, -f2 file ```
+``` 
+awk -F, '/.*/ { print $2 }' file 
+cut -d, -f2 file
+```
 
 NB: the variable `$0` contains the text of the entire current line.
 
@@ -201,7 +225,11 @@ NB: the variable `$0` contains the text of the entire current line.
 Write an `awk` script (or small set of scripts) to transform your cleaned
 `worldcup.txt` data file into a CSV with the following structure:
 
-``` nation,year,place ITA,1938,1 ...  ```
+```
+nation,year,place
+ITA,1938,1
+... 
+```
 
 
 
