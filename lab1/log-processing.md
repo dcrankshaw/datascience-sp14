@@ -1,3 +1,39 @@
+## File System Analytics
+
+In this exercise, we'll use some of the basic aggregation facilities provided by UNIX tools to do some analysis of the file system on your virtual machine.
+
+### Navigating the file system
+
+If you've used the terminal on a Linux or UNIX system before, you're probably very familiar with `ls` and `cd`. `ls` has some great extended options, but accessing the results of `ls` programmatically can be difficult, and tasks like getting a
+
+#### find
+
+`find` provides a much more flexible interface to listing files that match a particular criteria than ls. In particular, you can easily restrict yourself to a particular type of file (e.g. directories or plain files), recurse indefinitely or to some maximum depth, dispatch an action on file names that match your search, or pair the results of find with a command like `xargs` to do something further with files that match your filters.
+
+For example, the command `find /usr/bin -type f -name 'py*'` will tell find to list the names of all ordinary files (not directories) in `/usr/bin` whose names start with "py".
+
+#### du
+
+Understanding what files/directories are using space on the file system is a problem that people have been dealing with since UNIX was invented. According to the man page for `du`, "A `du` command appeared in Version 1 AT&T UNIX."
+
+`du` allows you to report usage statistics of files and directories in your system. By default, it reports its usage statistics at the block level, but the `-h` option provides this information in a human-readable format. It's worth noting that the results of `du` 
+
+Try running `du -hs *` in your home directory to see where the space is going. 
+
+Now, think about how you could output the results of `find` into `du` to do reporting on a subset of files.
+
+### Sorting
+
+The `sort` command is pretty powerful. In most systems, it is implemented via an external merge sort - this makes it possible to sort really huge files, even ones that don't fit into memory, in a reasonable amount of time. 
+
+By default, `sort` will sort items lexicographically, but with the `-n` flag it will sort in numeric order. This means that 10100 will come after 2 in numeric sort order, even though it precedes 2 lexicographically. In recent versions of GNU `sort`, the command also takes a `-h` parameter, which allows you to sort human-readable numbers (like file sizes produced by du -h).
+
+Additionally, `sort` will let you select exactly which fields of a file you want to sort on (by default, it's the whole line), and in which order these fields should be sorted.
+
+### Exercises
+1. What are the 10 biggest directories in /usr/lib on your virtual machine?
+2. What are the 5 biggest directories in /home/saasbook, including hidden folders?
+
 ## Log processing with command line tools
 
 In the next exercise we will look at tools which you can use to quickly analyze
@@ -124,3 +160,6 @@ May).
 3. Print the number of HTTP requests that had return code 200 in each hour of
 the day.
 4. Finally print the top 5 URLs which did not have return code 200.
+5. 
+
+
