@@ -90,3 +90,21 @@ May).
          51 22 404
          34 23 404
 ```
+* Break down the number of HTTP requests that did not have a 200 return code by date (i.e. how many responses were 304, 404, etc. on each day).
+
+```
+        cat wc_day6_1.log | cut -d ' ' -f 4,9 --output-delimiter=":" | cut -d ':' -f 1,5 --output-delimiter=" " | grep -v 200| sort | uniq -c
+        8 [01/May/1998 -
+        1957 [01/May/1998 206
+        44 [01/May/1998 302
+        139175 [01/May/1998 304
+        19 [01/May/1998 400
+        1221 [01/May/1998 404
+        20 [01/May/1998 500
+        173 [30/Apr/1998 206
+        4 [30/Apr/1998 302
+        12171 [30/Apr/1998 304
+        4 [30/Apr/1998 400
+        85 [30/Apr/1998 404
+        1 [30/Apr/1998 500
+```
