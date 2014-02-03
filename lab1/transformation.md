@@ -49,12 +49,12 @@ Manual](http://www.staff.science.uu.nl/~oostr102/docs/nawk/nawk_46.html).
 The simplest regular expressions are alphanumeric strings, e.g., `/pattern/`,
 will match the substring `"pattern"`.
 
-#### Wild Cards and Quatifiers
+#### Wild Cards and Quantifiers
 
 The character `.` matches any character, so for example, the pattern `/.ed/`
 will match all of `"sed"` and `"bed"` and `"1ed"`.
 
-Quatifiers match the preceding expression multiple times.  There are several
+Quantifiers match the preceding expression multiple times.  There are several
 quantifier expressions:
 
 * `*` matches the preceding expression 0 or more times `+` matches the prededing
