@@ -17,7 +17,7 @@ on most UNIX machines and should be installed in your VM. To download a file
 using curl you need to run `curl <url> -o <filename>`. For example to download
 the course webpage in html you can run something like
 
-    curl curl http://amplab.github.io/datascience-sp14/index.html -o index.html
+    curl http://amplab.github.io/datascience-sp14/index.html -o index.html
 
 This will download the course webpage and save it to a file named `index.html`
 in your current directory. This is of course a simple example of how you can use
