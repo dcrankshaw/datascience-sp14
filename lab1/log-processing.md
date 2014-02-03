@@ -31,7 +31,7 @@ By default, `sort` will sort items lexicographically, but with the `-n` flag it 
 Additionally, `sort` will let you select exactly which fields of a file you want to sort on (by default, it's the whole line), and in which order these fields should be sorted.
 
 ### Exercises
-1. What are the 10 biggest directories in /usr/lib on your virtual machine?
+1. What are the 10 biggest directories at depth 1 in /usr/lib on your virtual machine?
 2. What are the 5 biggest directories in /home/saasbook, including hidden folders?
 
 ## Log processing with command line tools
