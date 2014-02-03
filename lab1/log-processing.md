@@ -146,19 +146,39 @@ this we could run something like
     head -50 wc_day6_1.log | cut -d ' ' -f 7 | sort | uniq | wc -l
 
 Here we use the tool `uniq` to only count unique URLs. Note that the input to
-`uniq` should be sorted, so we use `sort` before calling `uniq`.
+`uniq` should be sorted, so we use `sort` before calling `uniq`. The `uniq` tool
+can also be used to count how many times an item occurs by passing it the `-c` flag.
+For example if we run the same command as above but with `uniq -c` we'll get
+
+    head -50 wc_day6_1.log  | cut -d ' ' -f 7 | sort | uniq -c | tail -10
+      1 /images/home_fr_phrase.gif
+      2 /images/home_intro.anim.gif
+      1 /images/home_logo.gif
+      1 /images/home_sponsor.gif
+      1 /images/home_tool.gif
+      1 /images/logo_cfo.gif
+      1 /images/nav_bg_top.gif
+      1 /images/team_hm_afc.gif
+      1 /images/team_hm_caf.gif
+      1 /images/team_hm_concacaf.gif
+
+This shows that `/images/home_intro.anim.gif` occured twice in the first 50 URLs.
 
 ### Exercises
 
 Now use the above tools to answer some analysis questions
 
 1. What are the 5 most frequently visited URLs ?
+2. Print the top 5 URLs which did not have return code 200.
 2. Print the number of requests that had HTTP return code 404. Next break down
 number of 404 requests by date (i.e how many on 30th April and how many on 1st
 May).
-3. Print the number of HTTP requests that had return code 200 in each hour of
-the day.
-4. Finally print the top 5 URLs which did not have return code 200.
-5. 
+
+## Challenge Exercises (Optional)
+
+1. Print the number of HTTP requests that had return code 200 in each hour of
+   the day.
+2. Break down the number of HTTP requests that did not have a 200 return code by date 
+   (i.e. how many responses were 304, 404, etc. on each day). 
 
 
