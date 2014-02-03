@@ -4,7 +4,7 @@ In this exercise, we'll use some of the basic aggregation facilities provided by
 
 ### Navigating the file system
 
-If you've used the terminal on a Linux or UNIX system before, you're probably very familiar with `ls` and `cd`. `ls` has some great extended options, but accessing the results of `ls` programmatically can be difficult, and tasks like getting a
+If you've used the terminal on a Linux or UNIX system before, you're probably very familiar with `ls` and `cd`. `ls` has some great extended options, but accessing the results of `ls` programmatically can be difficult, and tasks like getting access to filenames recursively can be tricky.
 
 #### find
 
