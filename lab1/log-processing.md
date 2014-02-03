@@ -16,7 +16,7 @@ For example, the command `find /usr/bin -type f -name 'py*'` will tell find to l
 
 Understanding what files/directories are using space on the file system is a problem that people have been dealing with since UNIX was invented. According to the man page for `du`, "A `du` command appeared in Version 1 AT&T UNIX."
 
-`du` allows you to report usage statistics of files and directories in your system. By default, it reports its usage statistics at the block level, but the `-h` option provides this information in a human-readable format. It's worth noting that the results of `du` 
+`du` allows you to report usage statistics of files and directories in your system. By default, it reports its usage statistics at the block level, but the `-h` option provides this information in a human-readable format. It's worth noting that the results of `du` are not exact - instead sizes are reported as multiples of block size.
 
 Try running `du -hs *` in your home directory to see where the space is going. 
 
