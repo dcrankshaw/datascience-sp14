@@ -176,7 +176,7 @@ May).
 
 ## Challenge Exercises (Optional)
 
-1. Print the number of HTTP requests that had return code 200 in each hour of
+1. Print the number of HTTP requests that had return code 404 in each hour of
    the day.
 2. Break down the number of HTTP requests that did not have a 200 return code by date 
    (i.e. how many responses were 304, 404, etc. on each day). 
