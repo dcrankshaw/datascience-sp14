@@ -1,4 +1,33 @@
-## Exercises
+## File System
+1. What are the 10 biggest directories at depth 1 in /usr/lib on your virtual machine?
+```
+    find /usr/lib -mindepth 1 -maxdepth 1 -type d -exec du -hs {} \; | sort -hr | head -10
+        205M	/usr/lib/libreoffice
+        128M	/usr/lib/i386-linux-gnu
+        87M	/usr/lib/chromium-browser
+        69M	/usr/lib/python2.7
+        46M	/usr/lib/thunderbird
+        38M	/usr/lib/gcc
+        35M	/usr/lib/firefox-7.0.1
+        15M	/usr/lib/mono
+        14M	/usr/lib/python2.6
+        12M	/usr/lib/perl
+
+    #Also works in this case:
+    du -hs /usr/lib/* | sort -hr | head -10
+```
+    
+2. What are the 5 biggest directories in /home/saasbook, including hidden folders?
+```
+     find /home/saasbook -type d -exec du -hs {} \; | sort -hr | head
+            656M	/home/saasbook
+            627M	/home/saasbook/.rvm
+            442M	/home/saasbook/.rvm/gems
+            429M	/home/saasbook/.rvm/gems/ruby-1.9.3-p448
+            222M	/home/saasbook/.rvm/gems/ruby-1.9.3-p448/gems
+```
+
+## Log Files
 
 1. What are the 5 most frequently visited URLs ?
 ```
