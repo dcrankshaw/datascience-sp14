@@ -78,9 +78,9 @@ sed 's/\[\[\([0-9]*\)[^]]*\]\]/\1/g;
 ```bash
 awk -F, '/^[A-Z]{3}/ { c = $0; i = 0 } /^[^A-Z]{3}/ { ++i } 
          /[0-9]{4}/ {
-		for (j=1; j<=NF; j++) { 
-			print c","i","$j 
-	 	} 
+                for (j=1; j<=NF; j++) { 
+                        print c","i","$j 
+                } 
          } ' < clean_worldcup.txt
 ```
 
