@@ -61,6 +61,25 @@ May).
     85 [30/Apr/1998 404
 ```
 
+## Clean worldcup.txt
+
+```bash
+sed 's/\[\[\([0-9]*\)[^]]*\]\]/\1/g;
+     s/.*fb|\([A-Za-z]*\)}}/\1/g;
+     s/<sup><\/sup>//g;
+     s/|bgcolor[^|]*//g;
+     s/|align=center[^|]*//g
+     s/^\|[^(]*(//; s/).*$//g
+     s/[ \t]//g' < worldcup.txt > clean_worldcup.txt
+```
+
+## Transform clean_worldcup.txt
+
+```bash
+awk -F, '/^[A-Z]{3}/ { c = $0; i = 0 } /^[^A-Z]{3}/ { ++i } 
+         /[0-9]{4}/ { for (j=1;j<=NF;j++) { print c","i","$j } } ' < clean_worldcup.txt
+```
+
 ## Challenge Exercises
 * Print the number of HTTP requests that had return code 404 in each hour of the day.
 ```
@@ -108,3 +127,4 @@ May).
         85 [30/Apr/1998 404
         1 [30/Apr/1998 500
 ```
+
