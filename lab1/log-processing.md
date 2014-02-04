@@ -58,8 +58,9 @@ to sort on (by default, it's the whole line), and in which order these fields
 should be sorted.
 
 ### Exercises
-1. What are the 10 biggest directories at depth 1 in /usr/lib on your virtual machine?
-2. What are the 5 biggest directories in /home/saasbook, including hidden folders?
+1.1. What are the 10 biggest directories at depth 1 in /usr/lib on your virtual machine?
+
+1.2. What are the 5 biggest directories in /home/saasbook, including hidden folders?
 
 ## Section 2: Log processing with command line tools
 
@@ -196,7 +197,9 @@ This shows that `/images/home_intro.anim.gif` occured twice in the first 50 URLs
 Now use the above tools to answer some analysis questions
 
 2.1 What are the 5 most frequently visited URLs ?
+
 2.2 Print the top 10 URLs which did not have return code 200.
+
 2.3 Print the number of requests that had HTTP return code 404. Next break down
 number of 404 requests by date (i.e how many on 30th April and how many on 1st
 May).
@@ -205,11 +208,12 @@ May).
 
 2.4. Print the number of HTTP requests that had return code 404 in each hour of
    the day.
+   
 2.5. Break down the number of HTTP requests that did not have a 200 return code by date
    (i.e. how many responses were 304, 404, etc. on each day).
 
 
-## Section 3: Data cleaning and transformation with sed and awk
+## Section 3: Data cleaning and transformation with sed, awk
 
 In this exercise we will learn how to use command line tools to transform
 structured data into a clean CSV format.
