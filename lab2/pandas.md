@@ -13,12 +13,25 @@ resemble a database table or say an Excel spreadsheet. In this lab we will
 primarily be using DataFrames and will look at operations that we can perform
 using them.
 
-To get started, run `ipython --pylab` from your command line. This
+Before you start, download the following file to your home directory (i.e
+`/home/saasbook`) and unzip it.
+`https://raw.github.com/shivaram/datascience-labs/master/lab2/data/wc_day6_1_sample.tar.bz2`
+
+After that run `ipython --pylab` from your command line. This
 will launch the `ipython` shell which provides an interactive environment for
 using Python. To import the Pandas library and create a simple DataFrame, run
 
     import pandas as pd
     df = pd.DataFrame( { 'a' : [1, 2, 3, 4], 'b': [ 'w', 'x', 'y', 'z'] })
+
+If you need clarifications about the Pandas API you can type the function name
+followed by `?` to get inline help. For example to get help with the above call
+run:
+
+    pd.DataFrame?
+
+If you want to see the same in a browser find the function you want in the [API
+documentation](http://pandas.pydata.org/pandas-docs/stable/api.html).
 
 ## DataFrame basics
 
@@ -96,8 +109,8 @@ mean, standard deviation etc. for the column `a` by running `describe`.
 
 Having worked our way through the basics, lets now see how we can use
 Pandas for data analysis. To do this part of the lab we will reuse the World Cup
-soccer logs from Lab 1. However this time the data has been formatted as a `csv`
-file that you will load first.
+soccer logs from Lab 1. However this time the input data has been sampled and
+formatted as a `csv` file that you will load first.
 
     log_df = pd.read_csv("/home/saasbook/wc_day6_1_sample.csv",
                          names=['ClientID', 'Date', 'Time', 'URL', 'ResponseCode', 'Size'],
@@ -174,14 +187,10 @@ and each group is in turn a DataFrame. To see this try
 Pandas also has useful commands to print various statistics about elements in
 each group.
 
-0. grouped.describe() prints summary statistics for numeric columns in each group
-1. grouped.size() prints the number of elements in each group
-2. Similarly grouped.sum(), grouped.mean() and grouped.median() print the sum,
+0. `grouped.describe()` prints summary statistics for numeric columns in each group
+1. `grouped.size()` prints the number of elements in each group
+2. Similarly `grouped.sum()`, `grouped.mean()` and `grouped.median()` print the sum,
 mean and median values for numeric columns in each group
-
-Finally you can apply operations on each group using the `apply` method. This is
-similar to the `apply` on the DataFrame we saw earlier except the `apply` method
-is now called *once per group*.
 
 ### Other SQL operators
 We have only looked at the basic SQL operators so far. Pandas also supports
@@ -215,6 +224,10 @@ doing any string parsing.
     hour_grouped = log_df.groupby(lambda row: log_df['DateTime'][row].hour)
     hour_grouped.ngroups
 
+Finally, note that you can apply operations on each group using the `apply`
+method. This is similar to the `apply` on the DataFrame we saw earlier except
+the `apply` method is now called *once per group*.
+
 ## Plotting data in a DataFrame
 In a future lab exercise we will look at plotting in greater detail. However we
 can produce simple plots using the Python `matplotlib` library with a DataFrame.
@@ -230,16 +243,17 @@ call `plot()` on the object and for a histogram just call `hist()`
 number of 404 requests by date (i.e how many on 30th April and how many on 1st May).
 2. What is the average file size for images (.gif or .jpg or .jpeg files) which
 had response code 200 ? What is the standard deviation ?
-3. Generate a histogram of traffic to the site every *half-hour*. Plot this using matplotlib. 
+3. Generate a histogram of traffic to the site every *half-hour*. Plot this using matplotlib.
 
 ## Challenge exercises (Optional)
 
 1. We wish to see if there is any correlation between client-ids and hours of
-the day at which they visit the website.  Extract the data necessary for this as
-a DataFrame and optionally plot this using matplotlib.
+the day at which they visit the website. Get 100 random client ids from the dataset and
+plot a scatter plot that shows the hours of the day these clients sent requests.
 
 2. The log file used in the lab was from one day of the WorldCup. Lets apply our
-analysis to another day's logs. For this start with the raw log file ` ` from
+analysis to another day's logs. For this start with the raw log file
+`https://raw.github.com/shivaram/datascience-labs/master/lab2/data/wc_day6_1_sample.tar.bz2` from
 github and load it as a Pandas DataFrame. Repeat the first 3 exercises with it.
 How similar or different are the results ?
 Hint: You can use UNIX command line tools from Lab 1 to first get a csv file and
