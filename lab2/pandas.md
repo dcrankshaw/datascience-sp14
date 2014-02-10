@@ -15,14 +15,23 @@ using them.
 
 Before you start, download the following file to your home directory (i.e
 `/home/saasbook`) and unzip it.
-`https://raw.github.com/shivaram/datascience-labs/master/lab2/data/wc_day6_1_sample.tar.bz2`
 
-After that run `ipython --pylab` from your command line. This
-will launch the `ipython` shell which provides an interactive environment for
-using Python. To import the Pandas library and create a simple DataFrame, run
+    wget https://raw.github.com/shivaram/datascience-labs/master/lab2/data/wc_day6_1_sample.tar.bz2
+    tar -xf wc_day6_1_sample.tar.bz2
 
+After that run `ipython notebook` from your command line. This
+will launch a browser window with the `iPython Dashboard`. [IPython
+notebook](http://ipython.org/) provides an interactive environment for
+using Python. Click on `New Notebook` to create a new notebook.
+We'll first import `pylab`, library support for plotting. Next import 
+the Pandas library and create a simple DataFrame, by running
+
+    from pylab import *
     import pandas as pd
     df = pd.DataFrame( { 'a' : [1, 2, 3, 4], 'b': [ 'w', 'x', 'y', 'z'] })
+
+NOTE: In the iPython notebook you'll need to use `Cntrl + Enter` or click the
+play button to execute code in a cell.
 
 If you need clarifications about the Pandas API you can type the function name
 followed by `?` to get inline help. For example to get help with the above call
@@ -30,7 +39,7 @@ run:
 
     pd.DataFrame?
 
-If you want to see the same in a browser find the function you want in the [API
+If you want to see the same in a browser lookup the function in the [API
 documentation](http://pandas.pydata.org/pandas-docs/stable/api.html).
 
 ## DataFrame basics
@@ -105,8 +114,6 @@ mean, standard deviation etc. for the column `a` by running `describe`.
 
     [8 rows x 1 columns]
 
-## SQL-like operators
-
 Having worked our way through the basics, lets now see how we can use
 Pandas for data analysis. To do this part of the lab we will reuse the World Cup
 soccer logs from Lab 1. However this time the input data has been sampled and
@@ -120,6 +127,11 @@ The `names` argument tells Pandas what the column names are in our file and
 `na_values` indicates what character is used for missing values in our dataset.
 Use the commands from the previous section to explore the dataset and its
 summary statistics.
+
+**DIY** How many rows are present in `log_df` ? What are the URLs between rows
+85 and 90 ?
+
+## SQL-like operators
 
 Next we will look at operators in Pandas that allow us to perform SQL-like
 queries on the dataset.
@@ -184,8 +196,14 @@ and each group is in turn a DataFrame. To see this try
     5     13649  01/May/1998  14:55:01                 /images/hm_anime_e.gif          200
     6     15006  01/May/1998  16:14:32  /english/images/comp_bu_group_off.gif          200
 
-Pandas also has useful commands to print various statistics about elements in
-each group.
+You can also group by multiple columns by just passing the a list of column
+names. For example to group by both date and response code you can run
+
+    multi_grouped = log_df.groupby(['ResponseCode', 'Date'])
+
+Pandas also has [useful
+commands](http://pandas.pydata.org/pandas-docs/dev/groupby.html) to print
+various statistics about elements in each group.
 
 0. `grouped.describe()` prints summary statistics for numeric columns in each group
 1. `grouped.size()` prints the number of elements in each group
@@ -198,13 +216,16 @@ operations like `sort`, `join` and `indexing` to support a wide-range of
 queries. You can read more about this and try out examples with the [Pandas
 comparison to SQL](http://pandas.pydata.org/pandas-docs/stable/comparison_with_sql.html)
 
+**DIY** Lab 1 Deja vu ! Print the number of requests that had HTTP return code
+404. How many of them were on 30th April and how many on 1st May ? Hint: Use the
+`multi_grouped` DataFrame we created above.
+
 ## Applying functions to rows, column
 So far we have been using SQL-style operators to process our data. However to do
-data cleaning or more complex analysis we often need to apply functions on every
-row or column of a DataFrame.
+data cleaning or more complex analysis we often need to apply functions on row or column of a DataFrame.
 
-For example, consider the columns 'Date' and 'Time' in our Dataframe. It would
-be useful if we could combine these columns and create `datetime` objects then
+For example, consider the columns 'Date' and 'Time' in our Dataframe. uld
+be useful if we could combine these columns and create `datetimects then
 it would be useful for filtering, grouping etc.
 
 To create a `DateTime` column we will use Pandas helper function `to_datetime`.
@@ -228,6 +249,8 @@ Finally, note that you can apply operations on each group using the `apply`
 method. This is similar to the `apply` on the DataFrame we saw earlier except
 the `apply` method is now called *once per group*.
 
+**DIY** Create a new column that contains the ResponseSize in kilo bytes.
+
 ## Plotting data in a DataFrame
 In a future lab exercise we will look at plotting in greater detail. However we
 can produce simple plots using the Python `matplotlib` library with a DataFrame.
@@ -239,11 +262,9 @@ call `plot()` on the object and for a histogram just call `hist()`
     rand_df.hist()
 
 ## Exercises
-1. Lab 1 Deja vu ! Print the number of requests that had HTTP return code 404. Next break down
-number of 404 requests by date (i.e how many on 30th April and how many on 1st May).
-2. What is the average file size for images (.gif or .jpg or .jpeg files) which
+1. What is the average file size for images (.gif or .jpg or .jpeg files) which
 had response code 200 ? What is the standard deviation ?
-3. Generate a histogram of traffic to the site every *half-hour*. Plot this using matplotlib.
+2. Generate a histogram of traffic to the site every *half-hour* and plot this.
 
 ## Challenge exercises (Optional)
 
