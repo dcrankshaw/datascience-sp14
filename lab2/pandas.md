@@ -23,10 +23,12 @@ After that run `ipython notebook` from your command line. This
 will launch a browser window with the `iPython Dashboard`. [IPython
 notebook](http://ipython.org/) provides an interactive environment for
 using Python. Click on `New Notebook` to create a new notebook.
-We'll first import `pylab`, library support for plotting. Next import 
-the Pandas library and create a simple DataFrame, by running
+We'll first import `pylab`, a library that supports plotting and direct plots to be
+shown line. Next we will import the Pandas library and create a simple DataFrame, 
+by running
 
     from pylab import *
+    %matplotlib inline
     import pandas as pd
     df = pd.DataFrame( { 'a' : [1, 2, 3, 4], 'b': [ 'w', 'x', 'y', 'z'] })
 
@@ -128,8 +130,8 @@ The `names` argument tells Pandas what the column names are in our file and
 Use the commands from the previous section to explore the dataset and its
 summary statistics.
 
-**DIY** How many rows are present in `log_df` ? What are the URLs between rows
-85 and 90 ?
+#### DIY 
+How many rows are present in `log_df` ? What are the URLs between rows 85 and 90 ?
 
 ## SQL-like operators
 
@@ -216,7 +218,8 @@ operations like `sort`, `join` and `indexing` to support a wide-range of
 queries. You can read more about this and try out examples with the [Pandas
 comparison to SQL](http://pandas.pydata.org/pandas-docs/stable/comparison_with_sql.html)
 
-**DIY** Lab 1 Deja vu ! Print the number of requests that had HTTP return code
+#### DIY 
+Lab 1 Deja vu ! Print the number of requests that had HTTP return code
 404. How many of them were on 30th April and how many on 1st May ? Hint: Use the
 `multi_grouped` DataFrame we created above.
 
@@ -249,7 +252,8 @@ Finally, note that you can apply operations on each group using the `apply`
 method. This is similar to the `apply` on the DataFrame we saw earlier except
 the `apply` method is now called *once per group*.
 
-**DIY** Create a new column that contains the ResponseSize in kilo bytes.
+#### DIY 
+Create a new column that contains the ResponseSize in kilo bytes.
 
 ## Plotting data in a DataFrame
 In a future lab exercise we will look at plotting in greater detail. However we
