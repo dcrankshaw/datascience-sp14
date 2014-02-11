@@ -1,5 +1,13 @@
 # Assignment 1
 
+**TODO**
+- Redo exercise numbering?
+- Generate data files; mention how to load data
+- Make Template.ipynb
+- Put together solutions notebook (with plots!)
+- Add references
+- Fix all links
+
 ## Overview: Entity Resolution and Text Analysis
 
 Entity resolution is a common, yet difficult problem in data cleaning and integration.
