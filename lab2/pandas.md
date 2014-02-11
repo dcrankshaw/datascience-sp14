@@ -16,7 +16,7 @@ using them.
 Before you start, download the following file to your home directory (i.e
 `/home/saasbook`) and unzip it.
 
-    wget https://raw.github.com/shivaram/datascience-labs/master/lab2/data/wc_day6_1_sample.tar.bz2
+    wget https://raw.github.com/amplab/datascience-sp14/master/lab2/data/wc_day6_1_sample.tar.bz2
     tar -xf wc_day6_1_sample.tar.bz2
 
 After that run `ipython notebook` from your command line. This
@@ -130,8 +130,9 @@ The `names` argument tells Pandas what the column names are in our file and
 Use the commands from the previous section to explore the dataset and its
 summary statistics.
 
-#### DIY 
-How many rows are present in `log_df` ? What are the URLs between rows 85 and 90 ?
+#### DIY
+1. How many rows are present in `log_df` ?
+2. What are the URLs between rows 85 and 90 ?
 
 ## SQL-like operators
 
@@ -218,10 +219,10 @@ operations like `sort`, `join` and `indexing` to support a wide-range of
 queries. You can read more about this and try out examples with the [Pandas
 comparison to SQL](http://pandas.pydata.org/pandas-docs/stable/comparison_with_sql.html)
 
-#### DIY 
-Lab 1 Deja vu ! Print the number of requests that had HTTP return code
-404. How many of them were on 30th April and how many on 1st May ? Hint: Use the
-`multi_grouped` DataFrame we created above.
+#### DIY
+1. Lab 1 Deja vu ! Use selection to print the number of requests that had HTTP return code 404.
+2. How many of them were on 30th April and how many on 1st May ? Hint: Use the `multi_grouped`
+DataFrame we created above.
 
 ## Applying functions to rows, column
 So far we have been using SQL-style operators to process our data. However to do
@@ -252,8 +253,8 @@ Finally, note that you can apply operations on each group using the `apply`
 method. This is similar to the `apply` on the DataFrame we saw earlier except
 the `apply` method is now called *once per group*.
 
-#### DIY 
-Create a new column that contains the ResponseSize in kilo bytes.
+#### DIY
+1. Create a new column that contains the ResponseSize in kilo bytes.
 
 ## Plotting data in a DataFrame
 In a future lab exercise we will look at plotting in greater detail. However we
@@ -278,8 +279,8 @@ plot a scatter plot that shows the hours of the day these clients sent requests.
 
 2. The log file used in the lab was from one day of the WorldCup. Lets apply our
 analysis to another day's logs. For this start with the raw log file
-`https://raw.github.com/shivaram/datascience-labs/master/lab2/data/wc_day6_1_sample.tar.bz2` from
-github and load it as a Pandas DataFrame. Repeat the first 3 exercises with it.
+`https://raw.github.com/amplab/datascience-sp14/master/lab2/data/wc_day91_1_log.tar.bz2` from
+github and load it as a Pandas DataFrame. Repeat the first 2 exercises with it.
 How similar or different are the results ?
 Hint: You can use UNIX command line tools from Lab 1 to first get a csv file and
 then load it into Pandas.
