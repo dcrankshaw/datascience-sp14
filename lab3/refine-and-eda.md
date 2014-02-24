@@ -43,7 +43,7 @@ This whole process will take a few minutes, so while it's running, let's watch a
 
 Once that's done, you can open your web browser and navigate to http://127.0.0.1:3333/ to access the tool.
 
-## Importing the dataset.
+## Importing The Dataset
 
 OpenRefine supports importing data in several formats, but luckily our file is already a well formatted data table.
 Loading it up should be no problem!
@@ -125,7 +125,7 @@ Luckily, OpenRefine has its own programming language for just such a task, calle
 Thankfully, the language isn't particuarly complicated, and is pretty well described [here](http://co-synergy.com/GREL%20Quick%20Reference.pdf).
 Additionally, it's possible to use Jython or Clojure to do the transformation as well, but we'll stick with GREL for the next few examples.
 
-### Cleaning those dates.
+### Cleaning Those Dates
 
 First, make sure all your facets have been reset (click "Reset All" on the left).
 
@@ -184,7 +184,7 @@ The collection of tools used to perform EDA is large and we will cover more of t
 
 You've already seen both of these in the last class - but this time we'll go into a little more depth and see how we can can use these tools to better "get to know" our data.
 
-## Loading our cleaned dataset.
+## Loading Our Cleaned Dataset
 
 In OpenRefine, export your dataset to a csv file using the "Export" button at the top right.
 If you haven't changed your project name, it will be saved to a file called `~/Downloads/emdata-tsv.csv`.
@@ -224,7 +224,7 @@ At the top, we see that traffic accidents are least costly. At bottom, we see th
 ### DIY
 1. Come up with an expression to compute the total # of people killed by Type - which is highest? Second highest?
 
-## Plotting distributions and seeing relationships.
+## Plotting Distributions and Seeing Relationships
 Now let's look at some plots of our data to understand it better. We'll look at two tools here, but there are many more.
 
 ### Box Plots
