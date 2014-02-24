@@ -37,9 +37,9 @@ Download OpenRefine to your VM and launch it (you'll need to install the java ru
     cd ~/refine/
     wget https://github.com/OpenRefine/OpenRefine/releases/download/2.5/google-refine-2.5-r2407.tar.gz
     tar zxvf google-refine-2.5-r2407.tar.gz
-    google-refine-2.5-r2407/refine
+    ./google-refine-2.5-r2407/refine
 
-This whole process will take a few minutes, so while it's running, let's watch an intro video.
+This whole process will take a few minutes, so while it's running, let's watch an [intro video](http://www.youtube.com/watch?v=B70J_H_zAWM).
 
 Once that's done, you can open your web browser and navigate to http://127.0.0.1:3333/ to access the tool.
 
@@ -54,7 +54,7 @@ OpenRefine will show you a preview of your dataset - it should look ok, so selec
 
 ### DIY
 
-1. Import the file "emdata.tsv" from the InfoChimps data directory into OpenRefine.
+1. Import the file "emdata.tsv" from the InfoChimps data directory into OpenRefine. There's a "Create Project" button when you're done.
 
 
 ## Facets and Filters
@@ -67,7 +67,7 @@ These knobs can be combine to form complex filters on your dataset.
 
 Once data is selected, you can edit it *en masse*. If there's a transformation you want to apply, you can apply it to all the data that matches the current selection.
 
-Importantly, once you've selected items within a facet, any chances you make are only applied to the current selection!
+Importantly, once you've selected items within a facet, any changes you make are only applied to the current selection!
 
 OpenRefine has several facet types. Click the arrow above "Type" and select "Text Facet" from the "Facets" menu.
 
@@ -86,20 +86,20 @@ As we saw with our text facet, there's dirty data here!
 But, how do we use the tool to clean this up?
 There are a number of ways to clean text data in OpenRefine. We'll cover two common ways.
 
-If you make a mistake, don't worry, OpenRefine keeps a full history of everything you've done - you can always go back and undo changes that were wrong!
+*If you make a mistake, don't worry, OpenRefine keeps a full history of everything you've done - you can always go back and undo changes that were wrong.*
 
 ### Direct Editing in Facet
 For common one-off cases, as in the case of typos or case mismatch issues like the one we saw above, we can just edit those values directly.
 Click "Edit" next to "Mass Movement Wet" on the left side - we want to assign this to the more common case "Mass movement wet".
 In this case, simply changing the string suffices.
-Look at the count of "Mass movement wet" in the type facet - it's gone up! 
+Look at the count of "Mass movement wet" in the type facet - it's gone up!
 This is because the values have now been merged.
 
 ### Cluster Editing
 This kind of manual editing can get pretty tedious, even if you're updating hundreds of rows at once.
 Also, it introduces the possibility for human error - what if "Mass movement wet" had been written "Bass movement wet" - we likely never would have caught this.
 
-Luckily, OpenRefine offers a feature to address this called "Clustering" - click the "Cluster" button above the Type facet to start this feature.
+Luckily, OpenRefine offers a feature to address this called "Clustering" - click the "Cluster" button above the Type facet to start this feature. If cluster doesn't show anything, try again after clicking "reset" on the 
 
 It automatically caught two additional duplicates in this column, and if you select all the proposals and click "Merge Selected and Close", the transformations will happen for you automatically.
 
@@ -174,3 +174,81 @@ This means we can use refine to automate a lot of this nasty data cleaning work 
 Finally, OpenRefine supports calling out to webservices as part of its cleaning process. 
 This means that we can pretty easily integrate data from other sources all in this tool.
 More on external integration next week!
+
+# Exploratory Data Analysis
+
+Exploratory data analysis (EDA) is the process of summarizing datasets to help understand their main characteristics. 
+It's an approach that was championed by [John Tukey](http://en.wikipedia.org/wiki/John_Tukey) and led directly to the development of the S (and later R) programming languages, and indirectly to environments like pandas and iPython - that is, the tools you're using are *built* for EDA.
+
+The collection of tools used to perform EDA is large and we will cover more of them later in the class, but for today, we're going to look at two of them - summary statistics and histogramming.
+
+You've already seen both of these in the last class - but this time we'll go into a little more depth and see how we can can use these tools to better "get to know" our data.
+
+## Loading our cleaned dataset.
+
+In OpenRefine, export your dataset to a csv file using the "Export" button at the top right.
+If you haven't changed your project name, it will be saved to a file called `~/Downloads/emdata-tsv.csv`.
+
+Now, fire up an ipython notebook with the command `ipython notebook` from the terminal.
+
+In a new notebook, import pandas and load your dataset.
+
+    import pandas as pd
+    data = pd.read_csv("~/Downloads/emdata-tsv.csv")
+    
+Next, make sure you understand the basic properties of your data - its size and shape, etc.
+
+    data.describe()
+    data.shape()
+    data.Country.describe()
+    data.Type.describe()
+
+### DIY
+1. Make sure you've loaded your cleaned dataset.
+2. Given the output of above - what's the largest number of people killed by a single disaster?
+
+## Digging into Conditional Distributions
+Knowing the summary statistics for our whole dataset is great, but what if we want to know summary statistics for a field by disaster type?
+
+Pandas makes that really easy with the split/apply/combine strategy we talked about last time. 
+Try the following command:
+
+    data.Cost.groupby(data.Type).describe().unstack().sort(columns='mean')
+    
+What have we done here? We've taken the cost column and grouped it by type. 
+We've then applied the summary statistics to each group and called "unstack" which just reshapes the result for us to make things a little more readable.
+Finally, we've sorted by the 'mean' column - this tells us the average cost of a given disaster by type.
+
+At the top, we see that traffic accidents are least costly. At bottom, we see that Drought is most costly.
+
+### DIY
+1. Come up with an expression to compute the total # of people killed by Type - which is highest? Second highest?
+
+## Plotting distributions and seeing relationships.
+Now let's look at some plots of our data to understand it better. We'll look at two tools here, but there are many more.
+
+### Box Plots
+Box plots are a visual representation of the same kind of information that we saw in our descriptive statistics.
+Namely, they let us look at things like mean, median, min, max, and IQR (middle 50%) of some set of data.
+They also show outliers.
+
+Try these commands out:
+
+    ax = data.boxplot(column='Cost', by='Type', figsize=(12,12), rot=90, grid=False)
+    ax.set_yscale('log')
+    
+With these commands we're plotting cost by type and seeing the results visually.
+*Note, because of the heavy skew in the data, we've plotted on a log scale.*
+
+### Scatter Matrixes
+A scatter plot matrix is a powerful tool to help you identify relationships between pairs of columns in your dataset.
+
+Try this command in your notebook:
+
+    _  = pd.scatter_matrix(data[['Cost','Killed','Affected','Duration']], figsize=(12,12))
+
+Here, we're plotting the relationships between Cost, Killed, Affected, and Duration across the whole dataset.
+Do you notice any patterns?
+
+#### DIY
+1. Write down a pattern you see when looking at the dataset visually that wasn't previously evident.
