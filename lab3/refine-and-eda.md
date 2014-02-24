@@ -193,13 +193,14 @@ Now, fire up an ipython notebook with the command `ipython notebook` from the te
 
 In a new notebook, import pandas and load your dataset.
 
+    %matplotlib inline
     import pandas as pd
     data = pd.read_csv("~/Downloads/emdata-tsv.csv")
     
 Next, make sure you understand the basic properties of your data - its size and shape, etc.
 
     data.describe()
-    data.shape()
+    data.shape
     data.Country.describe()
     data.Type.describe()
 
