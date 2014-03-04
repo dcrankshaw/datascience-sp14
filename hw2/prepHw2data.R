@@ -1,7 +1,7 @@
 library(plyr)
 
 load_play_data <- function(fname="lastfm-dataset-1K/userid-timestamp-artid-artname-traid-traname.tsv") {
-  res <- read.delim(fname, as.is=T, head=F, col.names=c('userid','timestamp','artid','artname','traid','traname'))
+  res <- read.delim(fname, as.is=T, head=F, quote="", col.names=c('userid','timestamp','artid','artname','traid','traname'))
   res$key <- with(res, paste(artid,traid))
   res$timestamp <- as.Date(substr(res$timestamp, 1, 10))
   res
