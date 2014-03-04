@@ -8,7 +8,7 @@ load_play_data <- function(fname="lastfm-dataset-1K/userid-timestamp-artid-artna
 }
 
 load_user_data <- function(fname="lastfm-dataset-1K/userid-profile.tsv") {
-  user_data <- read.delim(fname, as.is=T)
+  user_data <- read.delim(fname, as.is=T, quote="")
   colnames(user_data)[1] <- "userid"
   user_data$registered <- as.Date(strptime(user_data$registered, "%b %d, %Y"))
   user_data
