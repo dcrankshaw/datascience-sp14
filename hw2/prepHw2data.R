@@ -51,6 +51,8 @@ compute_track_stats <- function(df) {
   ddply(df, 'key', group_stats)
 }
 
+
+
 make_model_data <- function(agg_data, stats_data) {
   merge(agg_data, stats_data)
 }
@@ -74,20 +76,84 @@ user_artist_matrix <- function(play_data, user_min=0, artist_min=50) {
 
 
 main <- function() {
+  print("Loading data")
   play_data <- load_play_data()
+
+  print("Eliminating records without mbids")
   play_data <- subset(play_data, key!= " ")
+
+  print("Loading user data.")
   user_data <- load_user_data()
+
+  print("Computing aggregate data")
   agg_data <- compute_agg_data(play_data)
+
+  print("Combining aggregate data, user data, and play data")
   full_data <- create_full_agg(play_data, agg_data, user_data)
+
+  print("Computing stats.")
   stats_data <- compute_track_stats(full_data)
-  
+
+  print("Computing user artist matrix")
   userart_data <- user_artist_matrix(play_data)
-  
+
+  print("Computing kmeans model")
   kmeans_model <- kmeans(userart_data, 25)
-  
+
+  print("Generating model data")
+  model_data <- make_model_data(agg_data, stats_data)
+
+  #Write out intermediate datasets.
+  print("Saving datasets.")
+  save(play_data, user_data, agg_data, full_data, stats_data, model_data, userart_data, file="intermediate_data.robj")
+
+}
+
+build_dependent_dsets <- function(play_data) {
+  print("Loading user data.")
+  user_data <- load_user_data()
+
+  print("Computing aggregate data")
+  agg_data <- compute_agg_data(play_data)
+
+  print("Combining aggregate data, user data, and play data")
+  full_data <- create_full_agg(play_data, agg_data, user_data)
+
+  print("Computing stats.")
+  stats_data <- compute_track_stats(full_data)
+
+  print("Generating model data")
   model_data <- make_model_data(agg_data, stats_data)
   
-  #Write out intermediate datasets.
-  save(play_data, user_data, agg_data, full_data, stats_data, model_data, userart_data, file="intermediate_data.robj")
-  write.csv(model_data, "model_data.csv", as.is=T)
+  list(user_data=user_data, agg_data=agg_data, full_data=full_data, stats_data=stats_data, model_data=model_data)
+  
+}
+
+train_data <- subset(play_data, userid < "user_000900" & timestamp < "2009-01-01")
+validation_data <- subset(play_data, (userid >= "user_000900" & timestamp < "2009-01-01") | (userid < "user_000900" & timestamp >= "2009-01-01"))
+test_data <- subset(play_data, userid >= "user_000900" & timestamp >= "2009-01-01")
+
+
+test_data_sets <- build_dependent_dsets(test_data)
+validataion_data_sets <- build_dependent_dsets(validation_data)
+train_data_sets <- build_dependent_dsets(train_data)
+
+save(test_data_sets, validataion_data_sets, train_data_sets, file="modeling_data.robj")
+
+merge_km <- function(model_data, kmeans_model) {
+  model_data$artid <- unlist(lapply(strsplit(as.character(model_data$key), " "), function(k) k[[1]]))
+  merge(model_data, kmeans_model$cluster, by.x='artid', by.y=0)
+}
+
+clean_model_data <- function(model_data_base) {
+  model_data <- model_data_base
+  colnames(model_data) <- c('artid','key','plays','pctmale','age','country1','country2','country3','pctgt1','pctgt2','pctgt5','account_age', 'cluster')
+  numcols <- c('plays','pctmale','age','pctgt1','pctgt2','pctgt5','account_age')
+  charcols <- c('artid','key')
+  faccols <- c('country1','country2','country3', 'cluster')
+  model_data[,numcols] <- sapply(model_data[,numcols,drop=F], as.numeric)
+  model_data[,charcols] <- sapply(model_data[,charcols,drop=F], as.character)
+  model_data[,faccols] <- sapply(model_data[,faccols,drop=F], as.factor)
+
+  model_data
 }
