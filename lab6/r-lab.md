@@ -309,6 +309,3 @@ linear regression. That is not the case as we are just treating x^2 as a new var
 ### DIY
 * Plot the residuals vs. fitted values and qqnorm for lm_sq and lm2. What are some
 of the differences ?
-
-## Solving normal equations
-9. Normal equation method to do LM ?? Match it with what we have ?
