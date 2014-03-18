@@ -8,6 +8,8 @@ algorithms that we use in Pandas or scikit-learn are also supported in R.
 > Before you start, make sure you install R. You can do this in your VM by running
 > `sudo apt-get -y install r-base`
 
+Remember to fill out the response form at http://goo.gl/7kUpAb !
+
 ## Introducing R
 
 R is both a programming language and a software environment and is primarily targetted
@@ -309,3 +311,5 @@ linear regression. That is not the case as we are just treating x^2 as a new var
 ### DIY
 * Plot the residuals vs. fitted values and qqnorm for lm_sq and lm2. What are some
 of the differences ?
+
+Remember to fill out the response form at http://goo.gl/7kUpAb !
