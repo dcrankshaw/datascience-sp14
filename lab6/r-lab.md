@@ -267,7 +267,7 @@ much does the value of R^2 change ? What about R^2 adjusted ?
 
 ## Transforming variables in linear regression
 Sometimes the R^2 values are not sufficient to judge if we have a good model. To see
-this we will use the Anscombe dataset. You can check out the data by running
+this we will use the [Anscombe](http://en.wikipedia.org/wiki/Anscombe's_quartet) dataset. You can check out the data by running
 ```
   anscombe
 ```
