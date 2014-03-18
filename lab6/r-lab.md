@@ -20,14 +20,14 @@ python (or ipython) shells we have previously used in class.
 
 Lets get familiar with R by trying out some simple commands:
 
-1. Assignment: You can assign values to a variable using either `<-` or `=`. They are equivalent
+* **Assignment**: You can assign values to a variable using either `<-` or `=`. They are equivalent
 but the `<-` notation is usually preferred.
 ```
   x <- 10
   y = 5
   x+y
 ```
-2. Vectors, Matrices: R has native support for vectors and matrices. We will create a matrix and a vector
+* **Vectors, Matrices**: R has native support for vectors and matrices. We will create a matrix and a vector
 below and multiply them.
 ```
   m <- matrix(nrow=5, ncol=2, data=1.0)
@@ -35,13 +35,13 @@ below and multiply them.
   r <- m %*% v
   z
 ```
-3. Printing variables: To print a variable, just type in the variables name !
-4. Mathematical operations: R includes a number of mathematical operators such as log, exp etc.
+* **Printing variables**: To print a variable, just type in the variables name !
+* **Mathematical operations**: R includes a number of mathematical operators such as log, exp etc.
 ```
   log(x)
   exp(y)
 ```
-5. Getting Help: If you want to figure out what a R function does, you can lookup the help manual
+* **Getting Help**: If you want to figure out what a R function does, you can lookup the help manual
 by typing `?<function_name>`. For example if we want to read up about `log` we can run `?log`. 
 If you want to search for a function that does something you can run `??<search_string>`. For example
 searching for `??log` will return all the functions that include the word `log` in their help text. NOTE:
@@ -99,7 +99,8 @@ Gender column from the first five rows you can run something like
   nyt1[1:5, c("Age", "Gender")]
 ```
 
-DIY: Select all the rows and the columns 'Impressions' and 'Clicks'. Optional question: How do we use 
+### DIY
+* Select all the rows and the columns 'Impressions' and 'Clicks'. Optional question: How do we use 
 these to compute the CTR (click through rate) ?
 
 ## Exploring and plotting data in R
@@ -134,19 +135,19 @@ R also has extensive support for plotting in its base packages and more complex 
 add-on packages like [ggplot2](http://ggplot2.org/). We will take a look at some of the basic plotting
 functions below
 
-1. Histograms: To plot a histogram you can use the `hist` function. For example try the following commands:
+* **Histograms**: To plot a histogram you can use the `hist` function. For example try the following commands:
 ```
   hist(mpg)
   hist(mpg, breaks=10)
 ```
 
-2. Scatter plots: For scatter plots you can use the `plot` command and pass in the `x` and `y` values as
+* **Scatter plots**: For scatter plots you can use the `plot` command and pass in the `x` and `y` values as
 arguments. For example to plot a scatter plot of miles per gallon (mpg) vs. gears (gear) you can do 
 something like
 ```
   plot(mpg, gear)
 ```
-3. Line plots: Line plots are similar to scatter plots except you may just want to use a sequence of numbers
+* **Line plots**: Line plots are similar to scatter plots except you may just want to use a sequence of numbers
 on the x axis. For example to plot the mpg across different cars you can try the following commands.
 ```
   plot(1:length(mpg), mpg)
@@ -154,7 +155,8 @@ on the x axis. For example to plot the mpg across different cars you can try the
   plot(1:length(mpg), mpg, type="b")
 ```
 
-DIY: Plot a scatter plot of mpg vs. weight. Also plot a histogram of the weights. What value for weight
+###DIY
+* Plot a scatter plot of mpg vs. weight. Also plot a histogram of the weights. What value for weight
 occurs most frequently ? How many times does it occur ?
 
 ## Linear Regression in R
@@ -218,7 +220,7 @@ the following commands
   abline(model_hp$coefficients)
 ```
 
-However plotting the model alons is not always useful. It is more useful to see
+However plotting the model alone is not always useful. It is more useful to see
 the values of our residuals and see how the residuals vary for different values of data.
 One of the commonly used plots for this is 'Residuals vs. Fitted'. Recall that fitted 
 values are points in the predicted line closest to the observed data. Residuals represent
@@ -258,8 +260,8 @@ Does the residuals vs. fitted plot look any different ? What about the R^2 value
   qqline(residuals(model_hp_wt))
 ```
 
-### DIY
-Fit a model `model_all` that includes all the features in our dataframe `mtcars`. How
+###DIY
+* Fit a model `model_all` that includes all the features in our dataframe `mtcars`. How
 much does the value of R^2 change ? What about R^2 adjusted ?
 
 
@@ -290,7 +292,9 @@ Now fit a linear model for both and compare the R^2 values.
   summary(lm2)
 
 ```
-DIY: Plot the fit lines for both datasets. What do you see ?
+
+### DIY
+* Plot the fit lines for both datasets. What do you see ?
 
 To get a better fit for the second case we can use x^2 as our regression variable. Now
 this may seem confusing as it looks like we are doing quadratic regression now rather than
@@ -302,7 +306,8 @@ linear regression. That is not the case as we are just treating x^2 as a new var
   summary(lm_sq)
 ```
 
-DIY: Plot the residuals vs. fitted values and qqnorm for lm_sq and lm2. What are some
+### DIY
+* Plot the residuals vs. fitted values and qqnorm for lm_sq and lm2. What are some
 of the differences ?
 
 ## Solving normal equations
