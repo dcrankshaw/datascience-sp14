@@ -9,8 +9,9 @@
 # Create a python profile to use.
 ipython profile create default
 
-PASSWD="shiv"
-python -c "from IPython.lib import passwd; print passwd('shiv')" > /root/.ipython/profile_default/nbpasswd.txt
+PASSWD=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c 8`
+echo $PASSWD
+python -c "from IPython.lib import passwd; print passwd('$PASSWD')" > /root/.ipython/profile_default/nbpasswd.txt
 
 cp ipython_notebook_config.py /root/.ipython/profile_default/ipython_notebook_config.py
 # Naming controls order that these scripts are called; use 00 so this comes first.
