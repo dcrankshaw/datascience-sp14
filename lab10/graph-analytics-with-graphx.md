@@ -1,16 +1,16 @@
----
-layout: global
-title: Graph Analytics With GraphX
-categories: [module]
-navigation:
-  weight: 75
-  show: true
----
-
-{:toc}
-
+> ---
+> layout: global
+> title: Graph Analytics With GraphX
+> categories: [module]
+> navigation:
+>   weight: 75
+>   show: true
+> ---
+>
+> {:toc}
+>
 <p style="text-align: center;">
-  <img src="img/graphx_logo.png"
+  <img src="graphx_logo.png"
        title="GraphX Logo"
        alt="GraphX"
        width="65%" />
@@ -36,7 +36,7 @@ From social networks to language modeling, the growing scale and importance of g
 By restricting the types of computation that can be expressed and introducing new techniques to partition and distribute graphs, these systems can efficiently execute sophisticated graph algorithms orders of magnitude faster than more general *data-parallel* systems.
 
 <p style="text-align: center;">
-  <img src="img/data_parallel_vs_graph_parallel.png"
+  <img src="data_parallel_vs_graph_parallel.png"
        title="Data-Parallel vs. Graph-Parallel"
        alt="Data-Parallel vs. Graph-Parallel"
        width="50%" />
@@ -50,7 +50,7 @@ These tasks typically require data-movement outside of the graph topology and ar
 Furthermore, how we look at data depends on our objectives and the same raw data may require many different table and graph views throughout the analysis process:
 
 <p style="text-align: center;">
-  <img src="img/tables_and_graphs.png"
+  <img src="tables_and_graphs.png"
        title="Tables and Graphs"
        alt="Tables and Graphs"
        width="50%" />
@@ -63,7 +63,7 @@ However, existing graph analytics pipelines compose graph-parallel and data-para
 model.
 
 <p style="text-align: center;">
-  <img src="img/graph_analytics_pipeline.png"
+  <img src="graph_analytics_pipeline.png"
        title="Graph Analytics Pipeline"
        alt="Graph Analytics Pipeline"
        width="50%" />
@@ -111,7 +111,7 @@ While this is hardly <i>big data</i>, it provides an opportunity to learn about 
 
 
 <p style="text-align: center;">
-  <img src="img/social_graph.png"
+  <img src="social_graph.png"
        title="Toy Social Network"
        alt="Toy Social Network"
        width="50%" />
@@ -262,7 +262,7 @@ ON e.srcId = src.Id AND e.dstId = dst.Id
 or graphically as:
 
 <p style="text-align: center;">
-  <img src="img/triplet.png"
+  <img src="triplet.png"
        title="Edge Triplet"
        alt="Edge Triplet"
        width="65%" />
