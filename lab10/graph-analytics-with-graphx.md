@@ -1,14 +1,3 @@
-> ---
-> layout: global
-> title: Graph Analytics With GraphX
-> categories: [module]
-> navigation:
->   weight: 75
->   show: true
-> ---
->
-> {:toc}
->
 <p style="text-align: center;">
   <img src="graphx_logo.png"
        title="GraphX Logo"
@@ -83,14 +72,10 @@ However, we encourage Bagel users to explore the new GraphX API and comment on i
 
 To get started you first need to import GraphX.  Run the following in your Spark shell:
 
-<div class="codetabs">
-<div data-lang="scala">
-{% highlight scala %}
+```scala
 import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
-{% endhighlight %}
-</div>
-</div>
+```
 
 Great! You have now "installed" GraphX.
 
@@ -122,9 +107,7 @@ We begin by creating the property graph from arrays of vertices and edges.
 Later we will demonstrate how to load real data.
 Paste the following code into the spark shell.
 
-<div class="codetabs">
-<div data-lang="scala">
-{% highlight scala %}
+```scala
 val vertexArray = Array(
   (1L, ("Alice", 28)),
   (2L, ("Bob", 27)),
@@ -143,9 +126,7 @@ val edgeArray = Array(
   Edge(5L, 3L, 8),
   Edge(5L, 6L, 3)
   )
-{% endhighlight %}
-</div>
-</div>
+```
 
 In the above example we make use of the [`Edge`][Edge] class. Edges have a `srcId` and a
 `dstId` corresponding to the source and destination vertex identifiers. In addition, the `Edge`
