@@ -136,37 +136,23 @@ class has an `attr` member which stores the edge property (in this case the numb
 
 Using `sc.parallelize` (introduced in the Spark tutorial) construct the following RDDs from `vertexArray` and `edgeArray`
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-{% highlight scala %}
+```scala
 val vertexRDD: RDD[(Long, (String, Int))] = // Implement
 val edgeRDD: RDD[Edge[Int]] = // Implement
-{% endhighlight %}
-</div>
-</div>
+```
 
 In case you get stuck (or skipped the Spark tutorial) here is the solution.
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-{% highlight scala %}
+```scala
 val vertexRDD: RDD[(Long, (String, Int))] = sc.parallelize(vertexArray)
 val edgeRDD: RDD[Edge[Int]] = sc.parallelize(edgeArray)
-{% endhighlight %}
-</div>
-</div>
-</div>
+```
 
 Now we are ready to build a property graph.  The basic property graph constructor takes an RDD of vertices (with type `RDD[(VertexId, V)]`) and an RDD of edges (with type `RDD[Edge[E]]`) and builds a graph (with type `Graph[V, E]`).  Try the following:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-{% highlight scala %}
+```scala
 val graph: Graph[(String, Int), Int] = Graph(vertexRDD, edgeRDD)
-{% endhighlight %}
-</div>
-</div>
+```
 
 The vertex property for this graph is a tuple `(String, Int)` corresponding to the *User Name* and *Age* and the edge property is just an `Int` corresponding to the number of *Likes* in our hypothetical social network.
 
@@ -186,32 +172,22 @@ While these members extend `RDD[(VertexId, V)]` and `RDD[Edge[E]]` they are actu
 
 Use `graph.vertices` to display the names of the users that are at least `30` years old.  The output should contain (in addition to lots of log messages):
 
-<pre class="prettyprint lang-bsh">
+```bash
 David is 42
 Fran is 50
 Ed is 55
 Charlie is 65
-</pre>
+```
 
 Here is a hint:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-{% highlight scala %}
+```scala
 graph.vertices.filter { /** Implement */ }.collect.foreach { /** implement */ }
-{% endhighlight %}
-</div>
-</div>
-</div>
-
+```
 
 Here are a few solutions:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-{% highlight scala %}
+```scala
 // Solution 1
 graph.vertices.filter { case (id, (name, age)) => age > 30 }.collect.foreach {
   case (id, (name, age)) => println(s"$name is $age")
@@ -224,21 +200,18 @@ graph.vertices.filter(v => v._2._2 > 30).collect.foreach(v => println(s"${v._2._
 for ((id,(name,age)) <- graph.vertices.filter { case (id,(name,age)) => age > 30 }.collect) {
   println(s"$name is $age")
 }
-{% endhighlight %}
-</div>
-</div>
-</div>
+```
 
 In addition to the vertex and edge views of the property graph, GraphX also exposes a triplet view.
 The triplet view logically joins the vertex and edge properties yielding an `RDD[EdgeTriplet[VD, ED]]` containing instances of the [`EdgeTriplet`][EdgeTriplet] class. This *join* can be expressed in the following SQL expression:
 
 [EdgeTriplet]: api/graphx/index.html#org.apache.spark.graphx.EdgeTriplet
 
-{% highlight sql %}
+```SQL
 SELECT src.id, dst.id, src.attr, e.attr, dst.attr
 FROM edges AS e LEFT JOIN vertices AS src JOIN vertices AS dst
 ON e.srcId = src.Id AND e.dstId = dst.Id
-{% endhighlight %}
+```
 
 or graphically as:
 
@@ -255,7 +228,7 @@ The [`EdgeTriplet`][EdgeTriplet] class extends the [`Edge`][Edge] class by addin
 
 Use the `graph.triplets` view to display who likes who.  The output should look like:
 
-<pre class="prettyprint lang-bsh">
+```bash
 Bob likes Alice
 Bob likes David
 Charlie likes Bob
@@ -264,13 +237,11 @@ David likes Alice
 Ed likes Bob
 Ed likes Charlie
 Ed likes Fran
-</pre>
+```
 
 Here is a partial solution:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-{% highlight scala %}
+```scala
 for (triplet <- graph.triplets) {
  /**
    * Triplet has the following Fields:
@@ -281,47 +252,31 @@ for (triplet <- graph.triplets) {
    *   triplet.dstId: VertexId
    */
 }
-{% endhighlight %}
-</div>
-</div>
+```
 
 Here is the solution:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-{% highlight scala %}
+```scala
 for (triplet <- graph.triplets) {
   println( s"${triplet.srcAttr._1} likes ${triplet.dstAttr._1}")
 }
-{% endhighlight %}
-</div>
-</div>
-</div>
+```
 
 If someone likes someone else more than 5 times than that relationship is getting pretty serious.
 For extra credit, find the lovers.
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-{% highlight scala %}
+```scala
 for (triplet <- graph.triplets.filter(t => t.attr > 5)) {
   println( s"${triplet.srcAttr._1} loves ${triplet.dstAttr._1}")
 }
-{% endhighlight %}
-</div>
-</div>
-</div>
+```
 
 ## Graph Operators
 
 Just as RDDs have basic operations like `count`, `map`, `filter`, and `reduceByKey`, property graphs also have a collection of basic operations.
 The following is a list of some of the many functions exposed by the Graph API.
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
+```scala
 /** Summary of the functionality in the property graph */
 class Graph[VD, ED] {
   // Information about the Graph
@@ -380,9 +335,7 @@ class Graph[VD, ED] {
   def triangleCount(): Graph[Int, ED]
   def stronglyConnectedComponents(numIter: Int): Graph[VertexID, ED]
 }
-~~~
-</div>
-</div>
+```
 
 
 These functions are split between [`Graph`][Graph] and [`GraphOps`][GraphOps].
@@ -393,21 +346,15 @@ For example, we can compute the in-degree of each vertex (defined in `GraphOps`)
 [Graph]: api/graphx/index.html#org.apache.spark.graphx.Graph
 [GraphOps]: api/graphx/index.html#org.apache.spark.graphx.GraphOps
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-{% highlight scala %}
+```scala
 val inDegrees: VertexRDD[Int] = graph.inDegrees
-{% endhighlight %}
-</div>
-</div>
+```
 
 In the above example the `graph.inDegrees` operators returned a `VertexRDD[Int]` (recall that this behaves like `RDD[(VertexId, Int)]`).  What if we wanted to incorporate the in and out degree of each vertex into the vertex property?  To do this we will use a set of common graph operators.
 
 Paste the following code into the spark shell:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
+```scala
 // Define a class to more clearly model the user property
 case class User(name: String, age: Int, inDeg: Int, outDeg: Int)
 
@@ -420,21 +367,15 @@ val degreeGraph = userGraph.outerJoinVertices(userGraph.inDegrees) {
 }.outerJoinVertices(graph.outDegrees) {
   case (id, u, outDegOpt) => User(u.name, u.age, u.inDeg, outDegOpt.getOrElse(0))
 }
-~~~
-</div>
-</div>
+```
 
 Here we use the `outerJoinVertices` method of `Graph` which has the following (confusing) type signature:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
+```scala
  def outerJoinVertices[U, VD2](other: RDD[(VertexID, U)])
       (mapFunc: (VertexID, VD, Option[U]) => VD2)
     : Graph[VD2, ED]
-~~~
-</div>
-</div>
+```
 
 It takes *two* argument lists.
 The first contains an `RDD` of vertex values and the second argument list takes a function from the id, attribute, and Optional matching value in the `RDD` to a new vertex value.
@@ -443,17 +384,11 @@ In these cases the `Option` argument is empty and `optOutDeg.getOrElse(0)` retur
 
 Print the names of the users who liked by the same number of people they like.
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-~~~
+```scala
 degreeGraph.vertices.filter {
   case (id, u) => u.inDeg == u.outDeg
 }.collect.foreach(println(_))
-~~~
-</div>
-</div>
-</div>
+```
 
 ### The Map Reduce Triplets Operator
 
@@ -461,25 +396,19 @@ Using the property graph from Section 2.1, suppose we want to find the oldest fo
 
 [Graph.mapReduceTriplets]: api/graphx/index.html#org.apache.spark.graphx.Graph@mapReduceTriplets[A](mapFunc:org.apache.spark.graphx.EdgeTriplet[VD,ED]=&gt;Iterator[(org.apache.spark.graphx.VertexId,A)],reduceFunc:(A,A)=&gt;A,activeSetOpt:Option[(org.apache.spark.graphx.VertexRDD[_],org.apache.spark.graphx.EdgeDirection)])(implicitevidence$10:scala.reflect.ClassTag[A]):org.apache.spark.graphx.VertexRDD[A]
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
+```scala
 class Graph[VD, ED] {
   def mapReduceTriplets[A](
       map: EdgeTriplet[VD, ED] => Iterator[(VertexId, A)],
       reduce: (A, A) => A): VertexRDD[A]
 }
-~~~
-</div>
-</div>
+```
 
 The map function is applied to each edge triplet in the graph, yielding messages destined to the adjacent vertices. The reduce function combines messages destined to the same vertex. The operation results in a `VertexRDD` containing an aggregated message for each vertex.
 
 We can find the oldest follower for each user by sending age messages along each edge and aggregating them with the `max` function:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
+```scala
 val graph: Graph[(String, Int), Int] // Constructed from above
 val oldestFollowerAge: VertexRDD[Int] = graph.mapReduceTriplets[Int](
   edge => Iterator((edge.dstId, edge.srcAttr._2)),
@@ -490,16 +419,11 @@ val withNames = graph.vertices.innerJoin(oldestFollowerAge) {
 }
 
 withNames.collect.foreach(println(_))
-~~~
-</div>
-</div>
+```
 
 As an exercise, try finding the average follower age for each user instead of the max.
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-~~~
+```scala
 val graph: Graph[(String, Int), Int] // Constructed from above
 val oldestFollowerAge: VertexRDD[Int] = graph.mapReduceTriplets[Int](
   // map function
@@ -512,10 +436,7 @@ val withNames = graph.vertices.innerJoin(oldestFollowerAge) {
 }
 
 withNames.collect.foreach(println(_))
-~~~
-</div>
-</div>
-</div>
+```
 
 ### Subgraph
 
@@ -525,22 +446,15 @@ We can use the subgraph operator to consider only strong relationships with more
 
 [Graph.subgraph]: api/graphx/index.html#org.apache.spark.graphx.Graph@subgraph((EdgeTriplet[VD,ED])⇒Boolean,(VertexId,VD)⇒Boolean):Graph[VD,ED]
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
+```scala
 val graph: Graph[(String, Int), Int] // Constructed from above
 val strongRelationships: Graph[(String, Int), Int] =
   graph.subgraph(epred = (edge => edge.attr > 2))
-~~~
-</div>
-</div>
+```
 
 As an exercise, use this subgraph to find lonely users who have no strong relationships (i.e., have degree 0 in the subgraph).
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-~~~
+```scala
 val strongRelationships: Graph[(String, Int), Int] = // from above
 
 val lonely = strongRelationships.degrees.filter {
@@ -548,15 +462,8 @@ val lonely = strongRelationships.degrees.filter {
 }
 
 lonely.collect.foreach(println(_))
-~~~
-</div>
-</div>
-</div>
+```
 
-
-<!-- ### TODO: Reverse?
-### TODO: MapEdges or MapVertices
- -->
 
 ## Constructing an End-to-End Graph Analytics Pipeline on Real Data
 
@@ -566,14 +473,10 @@ to examine the output of the graph analysis, all from the Spark shell.
 
 If you don't already have the Spark shell open, start it now and import the `org.apache.spark.graphx` package.
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
+```scala
 import org.apache.spark.graphx._
 import org.apache.spark.graphx.RDD
-~~~
-</div>
-</div>
+```
 
 If you are using a cluster provided by the AMPLab for this tutorial, you already have a dataset that contains
 all of the English Wikipedia articles in HDFS on your cluster. If you are following along at
