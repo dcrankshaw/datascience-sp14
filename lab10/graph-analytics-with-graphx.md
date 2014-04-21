@@ -18,19 +18,43 @@ In addition, GraphX includes a growing collection of graph [algorithms](#graph_a
 In this chapter we use GraphX to analyze Wikipedia data and implement graph algorithms in Spark.
 The GraphX API is currently only available in Scala but we plan to provide Java and Python bindings in the future.
 -->
+## Getting Started
+
+Because GraphX is a new addition to Spark, there is no Python API for it yet. This means you need to program in Scala to use GraphX.
+
+We will be using the Spark shell for this assignment, which is a modified Scala REPL (Read-Eval-Print Loop). You will be running Spark locally on your laptop for this assignment.
+
+
+__Note__: There are some exercises in this lab that require you to write code in the Spark shell. We recommend that you use a text-editor to write the code, and then once you think you have it working copy and paste it into the shell. This way, if you have a syntax error or something goes wrong (e.g. you accidentally exit the shell), you will have all your work saved.
+
+Before you start Spark, there are a few settings to update.
+
+In the `lab10/` directory of the GitHub repository for the class there are two files, `spark-env.sh` and `log4j.properties`. Copy these two files into the the `/conf` subdirectory of your Spark installation.
+
+For example, if the root of my Spark directory is `/home/saasbook/spark-0.9.1-bin-cdh4`, I would do:
+
+```bash
+cp /home/saasbook/datascience-labs/lab10/{spark-env.sh,log4j.properties} /home/saasbook/spark-0.9.1-bin-cdh4/conf/
+```
+
+The `log4j.properties` file changes the default logging setting from `INFO` to `WARN`, which will remove some of the more verbose Spark logging messages. The `spark-env.sh` file specifies a custom serializer for Spark to use and some additional settings for serialization. These are necessary for GraphX to properly serialize and deserialize its data structures.
+
 
 ## Introduction to the Scala shell
 
 This section is a quick crash course in Scala and the Scala shell and introduce you to functional programming with collections.
+If you have never programmed in Scala before, we recommend working through these as a gentle introduction to Scala in a REPL, but if you are already familiar with Scala you can skip to the next section.
 
 This exercise is based on a great tutorial, <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a>.
 However, reading through that whole tutorial and trying the examples at the console may take considerable time, so we will provide a basic introduction to the Scala shell here. Do as much as you feel you need (in particular you might want to skip the final "bonus" question).
 
-1. Launch the Scala console by typing:
+For the remainder of this lab, we will use the convention that `SPARK_HOME` refers to the root of your Spark directory. For example, in the saasbook VM `SPARK_HOME=/home/saasbook/spark-0.9.1-bin-cdh4'
 
-   ~~~
-   /root/scala-2.10.3/bin/scala
-   ~~~
+1. Launch the Spark REPL by typing:
+
+   ```
+   SPARK_HOME/bin/spark-shell
+   ```
 
 1. Declare a list of integers as a variable called "myNumbers".
 
@@ -76,33 +100,8 @@ However, reading through that whole tutorial and trying the examples at the cons
 
 ## Exercise 1: Introduction to the GraphX API
 
-Because GraphX is a new addition to Spark, there is no Python API for it yet. This means you need to program in Scala to use GraphX.
-
-We will be using the Spark shell for this assignment, which is a modified Scala REPL (Read-Eval-Print Loop). You will be running Spark locally on your laptop for this assignment.
-
-If you have never programmed in Scala before, we recommend working through these [exercises](http://ampcamp.berkeley.edu/big-data-mini-course/introduction-to-the-scala-shell.html) as a gentle introduction to Scala in a REPL.
-
-__Note__: There are some exercises in this lab that require you to write code in the Spark shell. We recommend that you use a text-editor to write the code, and then once you think you have it working copy and paste it into the shell. This way, if you have a syntax error or something goes wrong (e.g. you accidentally exit the shell), you will have all your work saved.
-
-Before you start Spark, there are a few settings to update.
-
-In the `lab10/` directory of the GitHub repository for the class there are two files, `spark-env.sh` and `log4j.properties`. Copy these two files into the the `/conf` subdirectory of your Spark installation.
-
-For example, if the root of my Spark directory is `/home/saasbook/spark-0.9.1-bin-cdh4`, I would do:
-
-```bash
-cp /home/saasbook/datascience-labs/lab10/{spark-env.sh,log4j.properties} /home/saasbook/spark-0.9.1-bin-cdh4/conf/
-```
-
-The `log4j.properties` file changes the default logging setting from `INFO` to `WARN`, which will remove some of the more verbose Spark logging messages. The `spark-env.sh` file specifies a custom serializer for Spark to use and some additional settings for serialization. These are necessary for GraphX to properly serialize and deserialize its data structures.
-
-Now we can get started. First, start the Spark shell by running the following command from the root of your Spark directory:
-
-```bash
-./bin/spark-shell
-```
-
-The rest of the commands should be run directly in the Spark shell. First, import the GraphX packages. The `._` at the end of the import statement is a wildcard that tells Scala to import everything in that package, similar to `.*` in Java.
+Now that you have learned a little bit about Scala, we can start using GraphX.
+First, import the GraphX packages. The `._` at the end of the import statement is a wildcard that tells Scala to import everything in that package, similar to `.*` in Java.
 
 ```scala
 import org.apache.spark.graphx._
@@ -171,7 +170,7 @@ Using `sc.parallelize` construct the following RDDs from `vertexArray` and `edge
 
 
 ```scala
-val vertexRDD: RDD[(Long, (String, Int))] = /* CODE */
+val vertexRDD: RDD[(Long, (String, Int))] = sc.parallelize(vertexArray)
 val edgeRDD: RDD[Edge[Int]] = /* CODE */
 ```
 
@@ -189,14 +188,6 @@ val graph: Graph[(String, Int), Int] = Graph(vertexRDD, edgeRDD)
 ```
 
 The vertex property for this graph is a tuple `(String, Int)` corresponding to the *User Name* and *Age* and the edge property is just an `Int` corresponding to the number of *Likes* in our hypothetical social network.
-
-There are numerous ways to construct a property graph from raw files, RDDs, and even synthetic
-generators.
-Like RDDs, property graphs are immutable, distributed, and fault-tolerant.
-Changes to the values or structure of the graph are accomplished by producing a new graph with the desired changes.
-Note that substantial parts of the original graph (i.e. unaffected structure, attributes, and indices) are reused in the new graph.
-The graph is partitioned across the workers using vertex-partitioning heuristics.
-As with RDDs, each partition of the graph can be recreated on a different machine in the event of a failure.
 
 ### Graph Views
 
@@ -216,7 +207,7 @@ Charlie is 65
 Here is a hint:
 
 ```scala
-graph.vertices.filter { /* CODE */ }.collect.foreach { /** CODE */ }
+graph.vertices.filter { case (id, (name, age)) => /* CODE */ }.foreach { case (id, (name, age)) => /* CODE */ }
 ```
 
 Here are a few solutions:
@@ -307,71 +298,9 @@ for (triplet <- graph.triplets.filter(t => t.attr > 5)) {
 
 ## Graph Operators
 
-Just as RDDs have basic operations like `count`, `map`, `filter`, and `reduceByKey`, property graphs also have a collection of basic operations.
-The following is a list of some of the many functions exposed by the Graph API (here is a link to the full [documentation](http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.package)).
+Property graphs also have a collection of basic operations. Here is a link to the [documentation](http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.package) for the GraphX API, which details what these operators are and how to use them. In this section you will walk through some of these operators.
 
-```scala
-/** Summary of the functionality in the property graph */
-class Graph[VD, ED] {
-  // Information about the Graph
-  val numEdges: Long
-  val numVertices: Long
-  val inDegrees: VertexRDD[Int]
-  val outDegrees: VertexRDD[Int]
-  val degrees: VertexRDD[Int]
-
-  // Views of the graph as collections
-  val vertices: VertexRDD[VD]
-  val edges: EdgeRDD[ED]
-  val triplets: RDD[EdgeTriplet[VD, ED]]
-
-  // Transform vertex and edge attributes
-  def mapVertices[VD2](map: (VertexID, VD) => VD2): Graph[VD2, ED]
-  def mapEdges[ED2](map: Edge[ED] => ED2): Graph[VD, ED2]
-  def mapTriplets[ED2](map: EdgeTriplet[VD, ED] => ED2): Graph[VD, ED2]
-
-  // Modify the graph structure
-  def reverse: Graph[VD, ED]
-  def subgraph(
-      epred: EdgeTriplet[VD,ED] => Boolean = (x => true),
-      vpred: (VertexID, VD) => Boolean = ((v, d) => true))
-    : Graph[VD, ED]
-  def groupEdges(merge: (ED, ED) => ED): Graph[VD, ED]
-
-  // Join RDDs with the graph
-  def joinVertices[U](table: RDD[(VertexID, U)])(mapFunc: (VertexID, VD, U) => VD): Graph[VD, ED]
-  def outerJoinVertices[U, VD2](other: RDD[(VertexID, U)])
-      (mapFunc: (VertexID, VD, Option[U]) => VD2)
-    : Graph[VD2, ED]
-
-  // Aggregate information about adjacent triplets
-  def collectNeighbors(edgeDirection: EdgeDirection): VertexRDD[Array[(VertexID, VD)]]
-  def mapReduceTriplets[A: ClassTag](
-      mapFunc: EdgeTriplet[VD, ED] => Iterator[(VertexID, A)],
-      reduceFunc: (A, A) => A,
-      activeSetOpt: Option[(VertexRDD[_], EdgeDirection)] = None)
-    : VertexRDD[A]
-
-  // Iterative graph-parallel computation
-  def pregel[A](initialMsg: A, maxIterations: Int, activeDirection: EdgeDirection)(
-      vprog: (VertexID, VD, A) => VD,
-      sendMsg: EdgeTriplet[VD, ED] => Iterator[(VertexID,A)],
-      mergeMsg: (A, A) => A)
-    : Graph[VD, ED]
-
-  // Basic graph algorithms
-  def pageRank(tol: Double, resetProb: Double = 0.15): Graph[Double, Double]
-  def connectedComponents(): Graph[VertexID, ED]
-  def triangleCount(): Graph[Int, ED]
-  def stronglyConnectedComponents(numIter: Int): Graph[VertexID, ED]
-}
-```
-
-
-These functions are split between [`Graph`][Graph] and [`GraphOps`][GraphOps].
-However, thanks to the "magic" of Scala implicits the operators in `GraphOps` are automatically available as members of `Graph`.
-
-For example, we can compute the in-degree of each vertex (defined in `GraphOps`) by the following:
+For example, we can compute the in-degree of each vertex (defined in [`GraphOps`][GraphOps]) by the following:
 
 [Graph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph
 [GraphOps]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.GraphOps
@@ -416,9 +345,20 @@ Print the names of the users who were liked by the same number of people they li
 
 ```scala
 degreeGraph.vertices.filter {
+  case (id, u) => /* CODE */
+}.foreach(println(_))
+```
+
+SOLUTION:
+```scala
+degreeGraph.vertices.filter {
   case (id, u) => u.inDeg == u.outDeg
 }.collect.foreach(println(_))
 ```
+
+##Advanced Operators (Optional)
+
+The following two sections walk through some more advanced graph operators that you will not need to complete the lab. However, if you finish early you should try going through them.
 
 ### The Map Reduce Triplets Operator
 
@@ -567,6 +507,10 @@ How would you count the number of vertices and edges in the graph (this might be
 val numEdges = /* CODE */
 val numVertices = /* CODE */
 ```
+
+
+
+TODO: max indegree
 
 And now look at what some of the triplets look like:
 
