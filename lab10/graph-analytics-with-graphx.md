@@ -19,58 +19,60 @@ In this chapter we use GraphX to analyze Wikipedia data and implement graph algo
 The GraphX API is currently only available in Scala but we plan to provide Java and Python bindings in the future.
 -->
 
-## Background on Graph-Parallel Computation (Optional)
+## Introduction to the Scala shell
 
-If you want to get started coding right away, you can skip this part or come back later.
+This section is a quick crash course in Scala and the Scala shell and introduce you to functional programming with collections.
 
-From social networks to language modeling, the growing scale and importance of graph data has driven the development of numerous new *graph-parallel* systems (e.g., [Giraph](http://giraph.apache.org) and [GraphLab](http://graphlab.org)).
-By restricting the types of computation that can be expressed and introducing new techniques to partition and distribute graphs, these systems can efficiently execute sophisticated graph algorithms orders of magnitude faster than more general *data-parallel* systems.
+This exercise is based on a great tutorial, <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a>.
+However, reading through that whole tutorial and trying the examples at the console may take considerable time, so we will provide a basic introduction to the Scala shell here. Do as much as you feel you need (in particular you might want to skip the final "bonus" question).
 
-<p style="text-align: center;">
-  <img src="data_parallel_vs_graph_parallel.png"
-       title="Data-Parallel vs. Graph-Parallel"
-       alt="Data-Parallel vs. Graph-Parallel"
-       width="50%" />
-  <!-- Images are downsized intentionally to improve quality on retina displays -->
-</p>
+1. Launch the Scala console by typing:
 
-The same restrictions that enable graph-parallel systems to achieve substantial performance gains also limit their ability to express many of the important stages in a typical graph-analytics pipeline.
-Moreover while graph-parallel systems are optimized for iterative diffusion algorithms like PageRank they are not well suited to more basic tasks like constructing the graph, modifying its structure, or expressing computation that spans multiple graphs.
+   ~~~
+   /root/scala-2.10.3/bin/scala
+   ~~~
 
-These tasks typically require data-movement outside of the graph topology and are often more naturally expressed as operations on tables in more traditional data-parallel systems like Map-Reduce.
-Furthermore, how we look at data depends on our objectives and the same raw data may require many different table and graph views throughout the analysis process:
+1. Declare a list of integers as a variable called "myNumbers".
 
-<p style="text-align: center;">
-  <img src="tables_and_graphs.png"
-       title="Tables and Graphs"
-       alt="Tables and Graphs"
-       width="50%" />
-  <!-- Images are downsized intentionally to improve quality on retina displays -->
-</p>
+   ```scala
+   val myNumbers = List(1, 2, 5, 4, 7, 3)
+   ```
 
-Moreover, it is often desirable to be able to move between table and graph views of the same physical data and to leverage the properties of each view to easily and efficiently express
-computation.
-However, existing graph analytics pipelines compose graph-parallel and data-parallel systems, leading to extensive data movement and duplication and a complicated programming
-model.
+1. Declare a function, `cube`, that computes the cube (third power) of an Int.
+   See steps 2-4 of First Steps to Scala.
+   
+   ```scala
+   def cube(a: Int): Int = a * a * a
+   ```
+   
+1. Apply the function to `myNumbers` using the `map` function. Hint: read about the `map` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a> and also in Table 1 about halfway through the <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a> tutorial.
 
-<p style="text-align: center;">
-  <img src="graph_analytics_pipeline.png"
-       title="Graph Analytics Pipeline"
-       alt="Graph Analytics Pipeline"
-       width="50%" />
-  <!-- Images are downsized intentionally to improve quality on retina displays -->
-</p>
+   ```scala
+   myNumbers.map(x => cube(x))
+   // res: List[Int] = List(1, 8, 125, 64, 343, 27)
+   // Scala also provides some shorthand ways of writing this:
+   myNumbers.map(cube(_))
+   // and
+   myNumbers.map(cube)
+   ```
 
-The goal of the GraphX project is to unify graph-parallel and data-parallel computation in one system with a single composable API.
-The GraphX API enables users to view data both as graphs and as collections (i.e., RDDs) without data movement or duplication. By incorporating recent advances in graph-parallel systems, GraphX is able to optimize the execution of graph operations.
+1. Then also try writing the function inline in a `map` call, using closure notation.
 
-<!---
-Prior to the release of GraphX, graph computation in Spark was expressed using Bagel, an implementation of Pregel.
-GraphX improves upon Bagel by exposing a richer property graph API, a more streamlined version of the Pregel abstraction, and system optimizations to improve performance and reduce memory overhead.
-While we plan to eventually deprecate Bagel, we will continue to support the [Bagel API](api/bagel/index.html#org.apache.spark.bagel.package) and [Bagel programming guide](bagel-programming-guide.html).
-However, we encourage Bagel users to explore the new GraphX API and comment on issues that may complicate the transition from Bagel.
--->
+  ```scala
+  myNumbers.map{x => x * x * x}
+  //res: List[Int] = List(1, 8, 125, 64, 343, 27)
+  ```
 
+1. Define a `factorial` function that computes n! = 1 * 2 * ... * n given input n.
+   You can use either a loop or recursion, in our solution we use recursion (see steps 5-7 of <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a>).
+   Then compute the sum of factorials in `myNumbers`. Hint: check out the `sum` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a>.
+
+   ```scala
+   def factorial(n:Int):Int = if (n==0) 1 else n * factorial(n-1) // From http://bit.ly/b2sVKI
+   // factorial: (Int)Int
+   myNumbers.map(factorial).sum
+   // res: Int = 5193
+   ```
 
 ## Exercise 1: Introduction to the GraphX API
 
