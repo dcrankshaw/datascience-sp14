@@ -62,10 +62,12 @@ model.
 The goal of the GraphX project is to unify graph-parallel and data-parallel computation in one system with a single composable API.
 The GraphX API enables users to view data both as graphs and as collections (i.e., RDDs) without data movement or duplication. By incorporating recent advances in graph-parallel systems, GraphX is able to optimize the execution of graph operations.
 
+<!---
 Prior to the release of GraphX, graph computation in Spark was expressed using Bagel, an implementation of Pregel.
 GraphX improves upon Bagel by exposing a richer property graph API, a more streamlined version of the Pregel abstraction, and system optimizations to improve performance and reduce memory overhead.
 While we plan to eventually deprecate Bagel, we will continue to support the [Bagel API](api/bagel/index.html#org.apache.spark.bagel.package) and [Bagel programming guide](bagel-programming-guide.html).
 However, we encourage Bagel users to explore the new GraphX API and comment on issues that may complicate the transition from Bagel.
+-->
 
 
 ## Introduction to the GraphX API
@@ -74,7 +76,9 @@ Because GraphX is a new addition to Spark, there is no Python API for it yet. Th
 
 We will be using the Spark shell for this assignment, which is a modified Scala REPL (Read-Eval-Print Loop). You will be running Spark locally on your laptop for this assignment.
 
-Before you start Spark, there are a few settings we need to update.
+__Note__: There are some exercises in this lab that require you to write code in the Spark shell. We recommend that you use a text-editor to write the code, and then once you think you have it working copy and paste it into the shell. This way, if you have a syntax error or something goes wrong (e.g. you accidentally exit the shell), you will have all your work saved.
+
+Before you start Spark, there are a few settings to update.
 
 In the `lab10/` directory of the GitHub repository, there are two files, `spark-env.sh` and `log4j.properties`. Copy these two files into the the `/conf` subdirectory of your Spark installation.
 
@@ -488,249 +492,175 @@ lonely.collect.foreach(println(_))
 ```
 
 
-## Constructing an End-to-End Graph Analytics Pipeline on Real Data
+## Using GraphX To Analyze a Real Graph
+
+Now that you have learned about the GraphX API and played around with a toy graph, it's time to look at graph representing real-world data. Many real-world graphs are very large and can be hard to analyze on a single machine - thus the creation of distributed graph analytics platforms. But often when analyzing real data, we are interested in looking closely at some small portion of the data. When our data is graph, this means that we are interested in looking closely at subgraph which is itself another graph, and so we can use the same techniques. In this exercise, our original dataset was the text of all articles in the English-language Wikipedia. We will be analyzing the Wikipedia link graph. In this graph, each vertex represents an article in Wikipedia. There is an edge from Article A to Article B if A has a link to B. If we were to look at the entire link structure of Wikipedia, we would have a graph with 79M edges and 6.5M vertices. This would be hard to analyze on a laptop. Instead, we have used the GraphX system running on a cluster to create the link graph and take a subgraph from it, restricting the graph to only those vertices that have the word "Football" in their title. It is this subgraph that you will be analyzing today.
+
+
+Start a new Spark shell so that you can run this exercise in a clean environment. Type `exit` to leave the Spark shell, and then start it again using the same command as before.
+
+```bash
+./bin/spark-shell
+```
+
+We need to re-import GraphX since we have started a new Spark shell:
 
 ```scala
 import org.apache.spark.graphx._
 import org.apache.spark.graphx.lib._
-val edgeGraph = GraphLoader.edgeListFile(sc, "/home/saasbook/datascience-labs/lab10/data/edges")
+```
+
+Now load the data from your local disk into Spark. The data is in two files - an edge file and a vertex file - located in the lab10_data subdirectory of this lab's directory.
+
+First load the edge data using the GraphLoader object (you may need to adjust the path to the file):
 
 
+```scala
+val edgeGraph = GraphLoader.edgeListFile(sc, "/home/saasbook/datascience-labs/lab10/lab10_data/edges")
+```
+
+This parses the edge list file and creates a `Graph` object. However, this graph doesn't have any vertex properties, so we don't know which vertex corresponds to which article.
+
+The vertex file contains this information. The vertex file is formatted so that the first item on each line is the vertex ID, and the rest of the line is the article title that this vertex corresponds to. We will use Spark to parse the vertex file:
+
+```scala
 val verts = sc.textFile("/home/saasbook/lab10_data/verts").map {l =>
   val lineSplits = l.split("\\s+")
   val id = lineSplits(0).trim.toLong
   val data = lineSplits.slice(1, lineSplits.length).mkString(" ")
   (id, data)
 }
-
-val g = edgeGraph.outerJoinVertices(verts)({ (vid, _, title) => title.getOrElse("xxxx")})
-
-val prs = PageRank.run(g, 10)
-val top10 = g.outerJoinVertices(prs.vertices)({(v, title, r) => (r.getOrElse(0.0), title)}).vertices.top(10)(Ordering.by((entry: (VertexId, (Double, String))) => entry._2._1))
-
 ```
 
+Now that you have loaded the vertex data, how can you join this with the existing graph so that you have a `Graph[String, Int]` that has the relevant vertex properties as part of the object?
 
-
-Now that we have learned about the individual components of the GraphX API, we are ready to put them together to build a real analytics pipeline.
-In this section, we will start with raw Wikipedia text data, use Spark operators to clean the data and extract structure, use GraphX operators to analyze the structure, and then use Spark operators
-to examine the output of the graph analysis, all from the Spark shell.
-
-If you don't already have the Spark shell open, start it now and import the `org.apache.spark.graphx` package.
+Need a hint? Try the `Graph.outerJoinVertices()` method. And don't forget to cache your result, as we will be needing it throughout the rest of the exercise.
 
 ```scala
-import org.apache.spark.graphx._
-import org.apache.spark.graphx.RDD
+val g = /* Your code here */
 ```
 
-If you are using a cluster provided by the AMPLab for this tutorial, you already have a dataset that contains
-all of the English Wikipedia articles in HDFS on your cluster. If you are following along at
-home: TODO (what should they do???).
+Solution:
+```scala
+val g = edgeGraph.outerJoinVertices(verts)({ (vid, _, title) => title.getOrElse("xxxx")})
+```
 
-### Load the Wikipedia Articles
+Great! Now you have a full graph with all of the properties we are interested in loaded into GraphX, ready to analyze. Let's start by taking a look at some of the basic properties of the graph.
 
-The first step in our analytics pipeline is to ingest our raw data into Spark. Load the data (located at
-`"/wiki_dump/part*"` in HDFS) into an RDD:
+How would you count the number of vertices and edges in the graph (this might be a good time to look back at the GraphX API, or look at the [code itself](https://github.com/apache/spark/blob/branch-0.9/graphx/src/main/scala/org/apache/spark/graphx/Graph.scala)?
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
-val wiki: RDD[String] = // implement
-~~~
-<div class="solution" markdown="1">
-~~~
-// We tell Spark to cache the result in memory so we won't have to
-// repeat the expensive disk IO
-val wiki: RDD[String] = sc.textFile("/wiki_dump/part*").cache
-~~~
-</div>
-</div>
-</div>
+```scala
+val numEdges = /* CODE */
+val numVertices = /* CODE */
+```
 
-### Count the articles
+And now look at what some of the triplets look like:
 
-Use the `RDD` count method:
+```scala
+g.triplets.take(2)
+```
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-~~~
-// Notice that count is not just doing the count but also triggers the wiki RDD's lazy evaluation.
-// This means that the read from HDFS is being performed here as well.
-wiki.count
-// res0: Long = 13449972
-~~~
-</div>
-</div>
-</div>
+The first analysis we are going to run is PageRank, which should tell us roughly what the most important articles are. We can use the existing PageRank implementation on our graph.
 
-### Look at top article:
+Run Pagerank for 10 iterations:
+```scala
+val prs = /* CODE */
+```
 
-Display the contents of the first article:
+SOLUTION:
+```scala
+val prs = PageRank.run(g, 10)
+```
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-<div class="solution" markdown="1">
-~~~
-wiki.take(1)
-// res1: Array[String] = Array(AccessibleComputing #REDIRECT [[Computer accessibility]] {{R from CamelCase}})
-~~~
-</div>
-</div>
-</div>
+That should have returned immediately due to Spark's lazy evaluation. The code won't actually be run until we try to access the results. The simplest way to trigger the execution is to count the results:
 
-### Clean the Data
+```scala
+prs.triplets.count
+```
 
-The next steps in the pipeline are to clean the data and extract the graph structure.
-In this example, we will be extracting the link graph but one could imagine other graphs (e.g., the keyword by document graph and the contributor graph).
-From the sample article we printed out, we can already observe some structure to the data.
-The first word in the line is the name of the article, and the rest of string is the article contents.
-We also can see that this article is a redirect to the "Computer Accessibility" article, and not a full independent article.
+This may take a few seconds, depending on your machine.
 
-Now we are going to use the structure we've already observed to do the first round of data-cleaning.
-We define the `Article` class to hold the different parts of the article which we
-parse from the raw string, and filter out articles that are malformed or redirects.
+Notice that the result of running PageRank is another `Graph` object, but this graph has different vertex properties, now they are the PageRank's of each vertex, rather than the article titles. To join the ranks of the vertices with the article titles, we can use `Graph.outerJoinVertices` as we did before.
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
-// Define the article class
-class Article(val title: String, val body: String)
+Go ahead and try this out:
 
-// Parse the articles
-val articles = wiki.map(_.split('\t')).
-  // two filters on article format
-  filter(line => (line.length > 1 && !(line(1) contains "REDIRECT")).
-  // store the results in an object for easier access
-  map(line => new Article(line(0).trim, line(1).trim))
-~~~
-</div>
-</div>
+```scala
+val ranksAndVertices = g.outerJoinVertices(prs.vertices) /*CODE*/
+```
 
-### Making a Vertex RDD
+SOLUTION
+```scala
+val ranksAndVertices = g.outerJoinVertices(prs.vertices)({(v, title, r) => (r.getOrElse(0.0), title)})
+```
 
-At this point, our data is in a clean enough format that we can create our vertex RDD.
-Remember we are going to extract the link graph from this dataset, so a natural vertex attribute is the title of the article.
-We are also going to define a mapping from article title to vertex ID by hashing the article title.
-Finish implementing the following:
+Once you have joined the article titles with their ranks, we can use Spark's `RDD.top()` function to find the top-ranked articles:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
-// Hash function to assign an Id to each article
-def pageHash(title: String) = title.toLowerCase.replace(" ", "").hashCode
+```scala
+val top10 = ranksAndVerts.vertices.top(10)(Ordering.by((entry: (VertexId, (Double, String))) => entry._2._1))
+```
 
-// The vertices with id and article title:
-val vertices: RDD[(VertexId, String)] = /** Implement */
-~~~
-<div class="solution" markdown="1">
-~~~
-// Hash function to assign an Id to each article
-def pageHash(title: String) = title.toLowerCase.replace(" ", "").hashCode
-// The vertices with id and article title:
-val vertices = articles.map(a => (pageHash(a.title), a.title))
-~~~
-</div>
-</div>
-</div>
+Based on the results of running PageRank, what kind of football do you think most of the articles on Wikipedia are about?
 
-### Making the Edge RDD
+PageRank is a good algorithm to learn about some of the most important pieces of data in your dataset, but it doesn't tell us much about the overall structure of the data. Connected components is a simple algorithm that tells us more about the macroscopic structure. Your reading mentioned that many real-world graphs have one large connected component, with a few much smaller components.
 
-The next step in data-cleaning is to extract our edges to find the structure of the link graph.
-We know that the MediaWiki syntax (the markup syntax Wikipedia uses) indicates a link by enclosing the link destination in double square brackets on either side.
-So a link looks like "[[Article We Are Linking To]]."
-Based on this knowledge, we can write a regular expression to extract all strings that are enclosed on both sides by "[[" and "]]" respectively, and then apply that regular expression to each article's contents, yielding the destination of all links contained in the article.
+In this section of the exercise, you are going to implement the connected components algorithm and use it to determine if your Football graph's connected components have this property.
 
-Copy and paste the following into your Spark shell:
+The basic algorithm is very simple. The intuition is that we are going to initialize each vertex property to that vertex's ID, and then we will propagate the minimum vertex property in each connected component throughout the component by repeatedly replacing each vertex property with the minimum of its neighbors.
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
-val pattern = "\\[\\[.+?\\]\\]".r
-val edges: RDD[Edge[Double]] = articles.flatMap { a =>
-  val srcVid = pageHash(a.title)
-  pattern.findAllIn(a.body).map { link =>
-    val dstVid = pageHash(link.replace("[[", "").replace("]]", ""))
-    Edge(srcVid, dstVid, 1.0)
-  }
-}
-~~~
-</div>
-</div>
+We will use the Pregel API to implement this.
 
-This code extracts all the outbound links on each page and produces an RDD of edges with unit weight.
+The first thing to do is to transform our original graph `g` to replace the vertex property with vertex ID:
 
-### Making the Graph
+```scala
+val ccInitialGraph = /* CODE */
+```
 
-We are finally ready to create our graph.
-Note that at this point, we have been using core Spark dataflow operators, working with our data in a table view.
-Switching to a graph view of our data is now as simple as calling the Graph constructor with our vertex RDD, our edge RDD, and a default vertex attribute.
-The default vertex attribute is used to initialize vertices that are not present in the vertex RDD, but are found link edges (links).
-In the Wikipedia data there are often links to nonexistent pages.
-<!-- GraphX takes the safe approach by creating new vertices in this situation, rather than let the graph have "dangling edges" or assuming the user's data is perfect.
- -->
+To run Pregel, we need to define a vertex program `vprog` that takes an inbound message send from a neighboring vertex and updates the vertex property based on the contents of that message:
 
-In our case, we are going to use a dummy value of "xxxxx" for our default
-vertex attribute.
-We pick "xxxxx" as there are no Wikipedia articles with that as the title, and so we will be able to use the dummy value as a flag to filter out any artificially created vertices and all edges that point to them at the same time.
-These edges and dummy vertices are an artifact of our imperfect, dirty dataset, something that inevitably occurs in real world analytics pipelines.
-Note that this is another round of data-cleaning, but one that is done based on properties of the graph, making it much simpler to do with a graph-view of our data.
+```scala
+val vertexProg = /* CODE */
+```
 
-Complete the following:
+a `sendMsg` function that takes an edge triplet and sends an update to the other vertex in that triplet:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
-val graph = Graph(vertices, edges, "xxxxx").cache
-val cleanGraph = graph.subgraph(vpred = /* Implement */)
-~~~
-<div class="solution" markdown="1">
-~~~
-val graph = Graph(vertices, edges, "xxxxx").cache
-val cleanGraph = graph.subgraph(vpred = {(v, d) => !(d contains "xxxxx")}).cache
-~~~
-</div>
-</div>
-</div>
+```scala
+val sendMessage = /* CODE */
+```
 
-### Running PageRank on Wikipedia
+and a `mergeMsg` function that takes two incoming messages and merges them:
 
-We can now do some actual graph analytics.
-For this example, we are going to run [PageRank](http://en.wikipedia.org/wiki/PageRank) to evaluate what the most important pages in the Wikipedia graph are.
-[`PageRank`](PageRank) is part of a small but growing library of common graph algorithms already implemented in GraphX.
-However, the implementation is simple and straightforward, and just consists of some initialization code, a vertex program and message combiner to pass to Pregel.
+```scala
+val mergeMessage = /* CODE */
+```
 
-[PageRank]: api/graphx/index.html#org.apache.spark.graphx.lib.PageRank
+and an initial message (why did we pick `Long.MaxValue as our initial message`):
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
-val prGraph = cleanGraph.staticPageRank(5).cache
-~~~
-</div>
-</div>
+```scala
+val initialMessage = Long.MaxValue
+```
 
-`Graph.staticPageRank` returns a graph whose vertex attributes are the PageRank values of each page.
-However, this means that while the resulting graph `prGraph` only contains the PageRank of the vertices and no longer contains the original vertex properties including the title.
-Luckily, we still have our `cleanGraph` that contains that information.
-Here, we can perform a join of the vertices in the `prGraph` that have the information about relative ranks of the vertices with the vertices in the `cleanGraph` that have the information about the mapping from vertex to article title.
-This yields a new graph that has combined both pieces of information, storing them both in a tuple
-as the new vertex attribute. We can then perform further table-based operators on this new list of vertices,
-such as finding the ten most important vertices (those with the highest pageranks) and printing out
-their corresponding article titles. Putting this all together, and we get the following set of operations
-to find the titles of the ten most important articles.
+Once you have written these functions, we can run connected components by invoking Pregel:
 
-<div class="codetabs">
-<div data-lang="scala" markdown="1">
-~~~
-val titleAndPRGraph = cleanGraph.outerJoinVertices(ranksG.vertices)({(v, title, r) => (r.getOrElse(0.0), title)})
-titleAndPrGraph.vertices.top(10)(Ordering.by((entry: (VertexId, (Double, String))) => entry._2._1)).foreach(t => println(t._2._2 + ": " + t._2._1))
-~~~
-</div>
-</div>
+```scala
+val ccResult = Pregel(ccInitialGraph, initialMessage)(vprog=vertexProg, sendMsg=sendMessage, mergeMsg=mergeMessage)
+```
 
-This brings us to the end of the GraphX chapter of the tutorial. We encourage you to continue playing
+Once again, trigger the actual computation by running count on the results:
+
+```scala
+ccResult.triplets.count
+```
+
+And finally, let's look at the size of each connected component:
+
+```scala
+val ccSizes = ccResult.vertices.map { case (vid, data) => (data, 1) }.reduceByKey((_ + _))
+ccSizes.map{ case (ccID, size) => size }.max
+ccResult.vertices.count
+```
+
+Based on the number of vertices in the graph, does the largest connected component seem to contain most of them?
+
+
+This brings us to the end of the lab. We encourage you to continue playing
 with the code and to check out the [Programming Guide](TODO: Link) for further documentation about the system.
-
-
-Bug reports and feature requests are welcomed.
