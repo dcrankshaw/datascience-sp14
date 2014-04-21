@@ -28,7 +28,15 @@ __Note__: There are some exercises in this lab that require you to write code in
 
 Before you start Spark, there are a few settings to update.
 
-In the `lab10/` directory of the GitHub repository for the class there are two files, `spark-env.sh` and `log4j.properties`. Copy these two files into the the `/conf` subdirectory of your Spark installation.
+First, pull the latest version of the git repository for this class:
+
+```bash
+cd /home/saasbook/datascience-sp14
+git pull origin master
+cd lab10
+```
+
+In the `lab10/` subdirectory there are two files: `spark-env.sh` and `log4j.properties`. Copy these two files into the the `/conf` subdirectory of your Spark installation.
 
 For example, if the root of my Spark directory is `/home/saasbook/spark-0.9.1-bin-cdh4`, I would do:
 
@@ -62,7 +70,7 @@ For the remainder of this lab, we will use the convention that `SPARK_HOME` refe
    ```
 
 1. Declare a function, `cube`, that computes the cube (third power) of an Int.
-   See steps 2-4 of First Steps to Scala.
+   See steps 2-4 of [First Steps to Scala](http://www.artima.com/scalazine/articles/steps.html).
    
    ```scala
    def cube(a: Int): Int = a * a * a
@@ -86,13 +94,14 @@ For the remainder of this lab, we will use the convention that `SPARK_HOME` refe
   //res: List[Int] = List(1, 8, 125, 64, 343, 27)
   ```
 
+###DIY
 1. Define a `factorial` function that computes n! = 1 * 2 * ... * n given input n.
    You can use either a loop or recursion, in our solution we use recursion (see steps 5-7 of <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a>).
    Then compute the sum of factorials in `myNumbers`. Hint: check out the `sum` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a>.
 
    ```scala
    def factorial(n: Int): Int = {
-     /* Todo: Implement the factorial function */
+     /* CODE */
    }
    
    /* Compute the sum of the factorials in the list */
@@ -167,12 +176,12 @@ class has an `attr` member which stores the edge property (in this case the numb
 
 [Edge]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Edge
 
-Using `sc.parallelize` construct the following RDDs from `vertexArray` and `edgeArray`
 
+Using `sc.parallelize` construct the following RDDs from `vertexArray` and `edgeArray`
 
 ```scala
 val vertexRDD: RDD[(Long, (String, Int))] = sc.parallelize(vertexArray)
-val edgeRDD: RDD[Edge[Int]] = /* CODE */
+val edgeRDD: RDD[Edge[Int]] = sc.parallelize(edgeArray)
 ```
 
 Now we are ready to build a property graph.  The basic property graph constructor takes an RDD of vertices (with type `RDD[(VertexId, V)]`) and an RDD of edges (with type `RDD[Edge[E]]`) and builds a graph (with type `Graph[V, E]`).  Try the following:
@@ -189,6 +198,8 @@ In many cases we will want to extract the vertex and edge RDD views of a graph (
 As a consequence, the graph class contains members (`graph.vertices` and `graph.edges`) to access the vertices and edges of the graph.
 While these members extend `RDD[(VertexId, V)]` and `RDD[Edge[E]]` they are actually backed by optimized representations that leverage the internal GraphX representation of graph data.
 
+###DIY
+
 Use `graph.vertices` to display the names of the users that are at least `30` years old.  The output should contain (in addition to lots of log messages):
 
 ```bash
@@ -199,10 +210,8 @@ Charlie is 65
 ```
 
 Here is a hint:
-
 ```scala
 graph.vertices.filter { case (id, (name, age)) => /* CODE */ }.foreach { case (id, (name, age)) => /* CODE */ }
-// To print strings use: println(s"The variable x = ${x.getValue()}")
 ```
 
 In addition to the vertex and edge views of the property graph, GraphX also exposes a triplet view.
@@ -241,6 +250,8 @@ Ed likes Bob
 Ed likes Charlie
 Ed likes Fran
 ```
+
+###DIY
 
 Here is a partial solution:
 
@@ -306,6 +317,7 @@ The first contains an `RDD` of vertex values and the second argument list takes 
 Note that it is possible that the input `RDD` may not contain values for some of the vertices in the graph.
 In these cases the `Option` argument is empty and `optOutDeg.getOrElse(0)` returns 0.
 
+###DIY
 Print the names of the users who were liked by the same number of people they like.
 
 ```scala
@@ -461,6 +473,8 @@ val g = edgeGraph.outerJoinVertices(verts)({ (vid, _, title) => title.getOrElse(
 
 Great! Now you have a full graph with all of the properties we are interested in loaded into GraphX, ready to analyze. Let's start by taking a look at some of the basic properties of the graph.
 
+
+###DIY
 How would you count the number of vertices and edges in the graph (this might be a good time to look back at the GraphX API, or look at the [code itself](https://github.com/apache/spark/blob/branch-0.9/graphx/src/main/scala/org/apache/spark/graphx/Graph.scala)?
 
 ```scala
@@ -497,6 +511,7 @@ This may take a few seconds, depending on your machine.
 
 Notice that the result of running PageRank is another `Graph` object, but this graph has different vertex properties, now they are the PageRank's of each vertex, rather than the article titles. To join the ranks of the vertices with the article titles, we can use `Graph.outerJoinVertices` as we did before.
 
+###DIY
 Go ahead and try this out:
 
 ```scala
@@ -531,6 +546,8 @@ ccResult.triplets.count
 ```
 
 And finally, let's look at the size of each connected component:
+
+###DIY
 
 ```scala
 val ccSizes = ccResult.vertices.map { case (vid, data) => (data, 1) }.reduceByKey(/* CODE */)
