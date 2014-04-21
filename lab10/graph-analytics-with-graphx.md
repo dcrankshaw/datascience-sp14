@@ -8,7 +8,7 @@
 
 <!-- In this chapter we use GraphX to analyze Wikipedia data and implement graph algorithms in Spark. As with other exercises we will work with a subset of the Wikipedia traffic statistics data from May 5-7, 2009. In particular, this dataset only includes a subset of all Wikipedia articles. -->
 
-GraphX is the new (alpha) Spark API for graphs (e.g., Web-Graphs and Social Networks) and graph-parallel computation (e.g., PageRank and Collaborative Filtering).
+GraphX is the new Spark API for graphs (e.g., Web-Graphs and Social Networks) and graph-parallel computation (e.g., PageRank and Collaborative Filtering).
 At a high-level, GraphX extends the Spark RDD abstraction by introducing the [Resilient Distributed Property Graph](#property_graph): a directed multigraph with properties attached to each vertex and edge.
 To support graph computation, GraphX exposes a set of fundamental operators (e.g., [subgraph](#structural_operators), [joinVertices](#join_operators), and [mapReduceTriplets](#mrTriplets)) as well as an optimized variant of the [Pregel](#pregel) API.
 In addition, GraphX includes a growing collection of graph [algorithms](#graph_algorithms) and
@@ -70,10 +70,33 @@ However, we encourage Bagel users to explore the new GraphX API and comment on i
 
 ## Introduction to the GraphX API
 
-To get started you first need to import GraphX.  Run the following in your Spark shell:
+Because GraphX is a new addition to Spark, there is no Python API for it yet. This means you need to program in Scala to use GraphX.
+
+We will be using the Spark shell for this assignment, which is a modified Scala REPL (Read-Eval-Print Loop). You will be running Spark locally on your laptop for this assignment.
+
+Before you start Spark, there are a few settings we need to update.
+
+In the `lab10/` directory of the GitHub repository, there are two files, `spark-env.sh` and `log4j.properties`. Copy these two files into the the `/conf` subdirectory of your Spark installation.
+
+For example, if the root of my Spark directory is `/home/saasbook/spark-0.9.1-bin-cdh4`, I would do:
+
+```bash
+cp /home/saasbook/datascience-labs/lab10/{spark-env.sh,log4j.properties} /home/saasbook/spark-0.9.1-bin-cdh4/conf/
+```
+
+The `log4j.properties` file changes the default logging setting from `INFO` to `WARN`, which will remove some of the more verbose Spark logging messages. The `spark-env.sh` file specifies a custom serializer for Spark to use and some additional settings for serialization. These are necessary for GraphX to properly serialize and deserialize its data structures.
+
+Now we can get started. First, start the Spark shell by running the following command from the root of your Spark directory:
+
+```bash
+./bin/spark-shell
+```
+
+The rest of the commands should be run directly in the Spark shell. First, import the GraphX packages. The `._` at the end of the import statement is a wildcard that tells Scala to import everything in that package, similar to `.*` in Java.
 
 ```scala
 import org.apache.spark.graphx._
+import org.apache.spark.graphx.lib._
 import org.apache.spark.rdd.RDD
 ```
 
@@ -449,7 +472,7 @@ We can use the subgraph operator to consider only strong relationships with more
 ```scala
 val graph: Graph[(String, Int), Int] // Constructed from above
 val strongRelationships: Graph[(String, Int), Int] =
-  graph.subgraph(epred = (edge => edge.attr > 2))
+graph.subgraph(epred = (edge => edge.attr > 2))
 ```
 
 As an exercise, use this subgraph to find lonely users who have no strong relationships (i.e., have degree 0 in the subgraph).
@@ -466,6 +489,28 @@ lonely.collect.foreach(println(_))
 
 
 ## Constructing an End-to-End Graph Analytics Pipeline on Real Data
+
+```scala
+import org.apache.spark.graphx._
+import org.apache.spark.graphx.lib._
+val edgeGraph = GraphLoader.edgeListFile(sc, "/home/saasbook/datascience-labs/lab10/data/edges")
+
+
+val verts = sc.textFile("/home/saasbook/lab10_data/verts").map {l =>
+  val lineSplits = l.split("\\s+")
+  val id = lineSplits(0).trim.toLong
+  val data = lineSplits.slice(1, lineSplits.length).mkString(" ")
+  (id, data)
+}
+
+val g = edgeGraph.outerJoinVertices(verts)({ (vid, _, title) => title.getOrElse("xxxx")})
+
+val prs = PageRank.run(g, 10)
+val top10 = g.outerJoinVertices(prs.vertices)({(v, title, r) => (r.getOrElse(0.0), title)}).vertices.top(10)(Ordering.by((entry: (VertexId, (Double, String))) => entry._2._1))
+
+```
+
+
 
 Now that we have learned about the individual components of the GraphX API, we are ready to put them together to build a real analytics pipeline.
 In this section, we will start with raw Wikipedia text data, use Spark operators to clean the data and extract structure, use GraphX operators to analyze the structure, and then use Spark operators
