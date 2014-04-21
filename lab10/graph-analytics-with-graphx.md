@@ -1,5 +1,5 @@
 <p style="text-align: center;">
-  <img src="graphx_logo.png"
+  <img src="img/graphx_logo.png"
        title="GraphX Logo"
        alt="GraphX"
        width="65%" />
@@ -140,7 +140,7 @@ While this is hardly <i>big data</i>, it provides an opportunity to learn about 
 
 
 <p style="text-align: center;">
-  <img src="social_graph.png"
+  <img src="img/social_graph.png"
        title="Toy Social Network"
        alt="Toy Social Network"
        width="50%" />
@@ -245,7 +245,7 @@ ON e.srcId = src.Id AND e.dstId = dst.Id
 or graphically as:
 
 <p style="text-align: center;">
-  <img src="triplet.png"
+  <img src="img/triplet.png"
        title="Edge Triplet"
        alt="Edge Triplet"
        width="65%" />
@@ -448,8 +448,8 @@ Connected components are labeled (numbered) by the lowest vertex Id in that comp
 
 
 
-## Exercise 2: Using GraphX To Analyze a Real Graph
 <a name="football_exercise"></a>
+## Exercise 2: Using GraphX To Analyze a Real Graph
 
 
 Now that you have learned about the GraphX API, it's time to look at a graph representing real-world data.
