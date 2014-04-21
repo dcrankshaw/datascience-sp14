@@ -532,20 +532,24 @@ Notice that the result of running PageRank is another `Graph` object, but this g
 Go ahead and try this out:
 
 ```scala
-val ranksAndVertices: Graph[(String, Double), Int] = g.outerJoinVertices(prs.vertices)({(v, title, r) => /* CODE */})
+val ranksAndVertices: Graph[(String, Double), Int] = g.outerJoinVertices(prs.vertices){
+  (v, title, r) => /* CODE */
+}
 ```
 
 When we used `outerJoinVertices` to construct our graph, we didn't care about the existing vertex properties, we just replaced them. But in this case, we are joining the rank vertex properties and the title vertex properties into a tuple, keeping both around.
 
 SOLUTION
 ```scala
-val ranksAndVertices = g.outerJoinVertices(prs.vertices)({(v, title, r) => (r.getOrElse(0.0), title)})
+val ranksAndVertices = g.outerJoinVertices(prs.vertices){
+  (v, title, r) => (r.getOrElse(0.0), title)
+}
 ```
 
 Once you have joined the article titles with their ranks, we can use Spark's `RDD.top()` function to find the top-ranked articles:
 
 ```scala
-val top10 = ranksAndVerts.vertices.top(10)(Ordering.by((entry: (VertexId, (Double, String))) => entry._2._1))
+val top10 = ranksAndVertices.vertices.top(10)(Ordering.by((entry: (VertexId, (Double, String))) => entry._2._1)).mkString("\n")
 ```
 
 Based on the results of running PageRank, what kind of football do you think most of the articles on Wikipedia are about?
@@ -556,7 +560,7 @@ Your reading mentioned that many real-world graphs have one large connected comp
 Let's run connected components on the graph and use the results to determine if your football graph has this property.
 
 ```scala
-val ccResult = ConnectedComponents.run(g)
+val ccResult = g.connectedComponents()
 ```
 
 Once again, trigger the actual computation by running count on the results:
@@ -569,7 +573,7 @@ And finally, let's look at the size of each connected component:
 
 ```scala
 val ccSizes = ccResult.vertices.map { case (vid, data) => (data, 1) }.reduceByKey((_ + _))
-ccSizes.map{ case (ccID, size) => size }.max
+ccSizes.map{ case (ccID, size) => size }.collect.sorted
 ccResult.vertices.count
 ```
 
