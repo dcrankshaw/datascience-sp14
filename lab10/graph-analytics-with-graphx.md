@@ -220,6 +220,7 @@ Here is a hint:
 
 ```scala
 graph.vertices.filter { case (id, (name, age)) => /* CODE */ }.foreach { case (id, (name, age)) => /* CODE */ }
+// To print strings use: println(s"The variable x = ${x.getValue()}")
 ```
 
 Here are a few solutions:
