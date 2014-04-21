@@ -24,7 +24,6 @@ Because GraphX is a new addition to Spark, there is no Python API for it yet. Th
 
 We will be using the Spark shell for this assignment, which is a modified Scala REPL (Read-Eval-Print Loop). You will be running Spark locally on your laptop for this assignment.
 
-
 __Note__: There are some exercises in this lab that require you to write code in the Spark shell. We recommend that you use a text-editor to write the code, and then once you think you have it working copy and paste it into the shell. This way, if you have a syntax error or something goes wrong (e.g. you accidentally exit the shell), you will have all your work saved.
 
 Before you start Spark, there are a few settings to update.
@@ -213,17 +212,8 @@ graph.vertices.filter { case (id, (name, age)) => /* CODE */ }.foreach { case (i
 Here are a few solutions:
 
 ```scala
-// Solution 1
-graph.vertices.filter { case (id, (name, age)) => age > 30 }.collect.foreach {
+graph.vertices.filter { case (id, (name, age)) => age > 30 }.foreach {
   case (id, (name, age)) => println(s"$name is $age")
-}
-
-// Solution 2
-graph.vertices.filter(v => v._2._2 > 30).collect.foreach(v => println(s"${v._2._1} is ${v._2._2}"))
-
-// Solution 3
-for ((id,(name,age)) <- graph.vertices.filter { case (id,(name,age)) => age > 30 }.collect) {
-  println(s"$name is $age")
 }
 ```
 
@@ -322,9 +312,9 @@ val userGraph = graph.mapVertices{ case (id, (name, age)) => User(name, age, 0, 
 
 // Fill in the degree information
 val degreeGraph = userGraph.outerJoinVertices(userGraph.inDegrees) {
-  case (id, u, inDegOpt) => User(u.name, u.age, inDegOpt.getOrElse(0), u.outDeg)
+  (id, u, inDegOpt) => User(u.name, u.age, inDegOpt.getOrElse(0), u.outDeg)
 }.outerJoinVertices(graph.outDegrees) {
-  case (id, u, outDegOpt) => User(u.name, u.age, u.inDeg, outDegOpt.getOrElse(0))
+  (id, u, outDegOpt) => User(u.name, u.age, u.inDeg, outDegOpt.getOrElse(0))
 }
 ```
 
@@ -353,12 +343,12 @@ SOLUTION:
 ```scala
 degreeGraph.vertices.filter {
   case (id, u) => u.inDeg == u.outDeg
-}.collect.foreach(println(_))
+}.foreach(println(_))
 ```
 
 ##Advanced Operators (Optional)
 
-The following two sections walk through some more advanced graph operators that you will not need to complete the lab. However, if you finish early you should try going through them.
+The following two sections walk through some more advanced graph operators that you will not need to complete the lab. However, if you finish early you should try going through them. But if you want, you can skip to the [next exercise](#football_exercise).
 
 ### The Map Reduce Triplets Operator
 
@@ -388,7 +378,7 @@ val withNames = graph.vertices.innerJoin(oldestFollowerAge) {
   (id, pair, oldestAge) => (pair._1, oldestAge)
 }
 
-withNames.collect.foreach(println(_))
+withNames.foreach(println(_))
 ```
 
 As an exercise, try finding the average follower age for each user instead of the max.
@@ -405,7 +395,7 @@ val withNames = graph.vertices.innerJoin(oldestFollowerAge) {
   (id, pair, oldestAge) => (pair._1, oldestAge)
 }
 
-withNames.collect.foreach(println(_))
+withNames.foreach(println(_))
 ```
 
 ### Subgraph
@@ -431,13 +421,15 @@ val lonely = strongRelationships.degrees.filter {
   case (id, degree) => degree == 0
 }
 
-lonely.collect.foreach(println(_))
+lonely.foreach(println(_))
 ```
 
 
 ## Exercise 2: Using GraphX To Analyze a Real Graph
+<a name="football_exercise"></a>
 
-Now that you have learned about the GraphX API and played around with a toy graph, it's time to look at graph representing real-world data.
+
+Now that you have learned about the GraphX API and played around with a toy graph, it's time to look at a graph representing real-world data.
 Many real-world graphs are very large and can be hard to analyze on a single machine - thus the creation of distributed graph analytics frameworks.
 But often when analyzing real data, we are interested in looking closely at some small portion of the data.
 When our data is a graph, this means that we are interested in looking closely at a subgraph which is itself another graph, and so we can use the same system to perform both types of analysis.
@@ -470,7 +462,9 @@ To load the edge list, we can use the [`GraphLoader.edgeListFile`][GraphLoader] 
 
 
 ```scala
-val edgeGraph = GraphLoader.edgeListFile(sc, "/home/saasbook/datascience-labs/lab10/lab10_data/edges")
+// Change labshome to the appropriate value for your computer
+val labshome = "/home/saasbook/datascience-labs/lab10"
+val edgeGraph = GraphLoader.edgeListFile(sc, s"${labshome}/lab10_data/edges.txt")
 ```
 
 This parses the edge list file and creates a `Graph` object. However, this graph doesn't have any vertex properties, so we don't know which vertex corresponds to which article.
@@ -478,7 +472,7 @@ This parses the edge list file and creates a `Graph` object. However, this graph
 The vertex file contains this information. The vertex file is formatted so that the first item on each line is the vertex ID, and the rest of the line is the article title that this vertex corresponds to. We will use Spark to parse the vertex file:
 
 ```scala
-val verts = sc.textFile("/home/saasbook/lab10_data/verts").map {l =>
+val verts = sc.textFile(s"${labshome}/lab10_data/verts.txt").map {l =>
   val lineSplits = l.split("\\s+")
   val id = lineSplits(0).trim.toLong
   val data = lineSplits.slice(1, lineSplits.length).mkString(" ")
@@ -486,17 +480,10 @@ val verts = sc.textFile("/home/saasbook/lab10_data/verts").map {l =>
 }
 ```
 
-Now that you have loaded the vertex data, how can you join this with the existing graph so that you have a `Graph[String, Int]` that has the relevant vertex properties as part of the object?
-
-Need a hint? Try the `Graph.outerJoinVertices()` method. And don't forget to cache your result, as we will be needing it throughout the rest of the exercise.
+Now that you have loaded the vertex data, join this with the existing graph so that you have a `Graph[String, Int]` that has the relevant vertex properties as part of the object.
 
 ```scala
-val g = /* Your code here */
-```
-
-Solution:
-```scala
-val g = edgeGraph.outerJoinVertices(verts)({ (vid, _, title) => title.getOrElse("xxxx")})
+val g = edgeGraph.outerJoinVertices(verts)({ (vid, _, title) => title.getOrElse("xxxx")}).cache
 ```
 
 Great! Now you have a full graph with all of the properties we are interested in loaded into GraphX, ready to analyze. Let's start by taking a look at some of the basic properties of the graph.
@@ -508,26 +495,28 @@ val numEdges = /* CODE */
 val numVertices = /* CODE */
 ```
 
+What is the max in-degree of this graph?
 
+```scala
+val maxDegree = g.inDegrees.map{ case (vid, data) => data}.reduce(/* CODE */)
+```
 
-TODO: max indegree
+SOLUTION
+```scala
+val maxDegree = g.inDegrees.map{ case (vid, data) => data}.reduce(math.max(_, _))
+```
 
 And now look at what some of the triplets look like:
 
 ```scala
-g.triplets.take(2)
+g.triplets.map(t => s"[${t.srcAttr}] links to [${t.dstAttr}]").take(2)
 ```
 
 The first analysis we are going to run is PageRank, which should tell us roughly what the most important articles are. We can use the existing PageRank implementation on our graph.
 
 Run Pagerank for 10 iterations:
 ```scala
-val prs = /* CODE */
-```
-
-SOLUTION:
-```scala
-val prs = PageRank.run(g, 10)
+val prs = g.staticPageRank(10)
 ```
 
 That should have returned immediately due to Spark's lazy evaluation. The code won't actually be run until we try to access the results. The simplest way to trigger the execution is to count the results:
@@ -543,8 +532,10 @@ Notice that the result of running PageRank is another `Graph` object, but this g
 Go ahead and try this out:
 
 ```scala
-val ranksAndVertices = g.outerJoinVertices(prs.vertices) /*CODE*/
+val ranksAndVertices: Graph[(String, Double), Int] = g.outerJoinVertices(prs.vertices)({(v, title, r) => /* CODE */})
 ```
+
+When we used `outerJoinVertices` to construct our graph, we didn't care about the existing vertex properties, we just replaced them. But in this case, we are joining the rank vertex properties and the title vertex properties into a tuple, keeping both around.
 
 SOLUTION
 ```scala
@@ -559,48 +550,13 @@ val top10 = ranksAndVerts.vertices.top(10)(Ordering.by((entry: (VertexId, (Doubl
 
 Based on the results of running PageRank, what kind of football do you think most of the articles on Wikipedia are about?
 
-PageRank is a good algorithm to learn about some of the most important pieces of data in your dataset, but it doesn't tell us much about the overall structure of the data. Connected components is a simple algorithm that tells us more about the macroscopic structure. Your reading mentioned that many real-world graphs have one large connected component, with a few much smaller components.
-
-In this section of the exercise, you are going to implement the connected components algorithm and use it to determine if your Football graph's connected components have this property.
-
-The basic algorithm is very simple. The intuition is that we are going to initialize each vertex property to that vertex's ID, and then we will propagate the minimum vertex property in each connected component throughout the component by repeatedly replacing each vertex property with the minimum of its neighbors.
-
-We will use the Pregel API to implement this.
-
-The first thing to do is to transform our original graph `g` to replace the vertex property with vertex ID:
+PageRank tells us about some of the most important pieces of data in the dataset, but it doesn't tell us much about the overall structure of the data. 
+Connected components is a simple algorithm that tells us more about the macroscopic structure.
+Your reading mentioned that many real-world graphs have one large connected component, with a few much smaller components.
+Let's run connected components on the graph and use the results to determine if your football graph has this property.
 
 ```scala
-val ccInitialGraph = /* CODE */
-```
-
-To run Pregel, we need to define a vertex program `vprog` that takes an inbound message send from a neighboring vertex and updates the vertex property based on the contents of that message:
-
-```scala
-val vertexProg = /* CODE */
-```
-
-a `sendMsg` function that takes an edge triplet and sends an update to the other vertex in that triplet:
-
-```scala
-val sendMessage = /* CODE */
-```
-
-and a `mergeMsg` function that takes two incoming messages and merges them:
-
-```scala
-val mergeMessage = /* CODE */
-```
-
-and an initial message (why did we pick `Long.MaxValue as our initial message`):
-
-```scala
-val initialMessage = Long.MaxValue
-```
-
-Once you have written these functions, we can run connected components by invoking Pregel:
-
-```scala
-val ccResult = Pregel(ccInitialGraph, initialMessage)(vprog=vertexProg, sendMsg=sendMessage, mergeMsg=mergeMessage)
+val ccResult = ConnectedComponents.run(g)
 ```
 
 Once again, trigger the actual computation by running count on the results:
@@ -617,11 +573,11 @@ ccSizes.map{ case (ccID, size) => size }.max
 ccResult.vertices.count
 ```
 
-Based on the number of vertices in the graph, does the largest connected component seem to contain most of them?
+Does it look like your graph has a single big component?
 
 
 This brings us to the end of the lab. We encourage you to continue playing
-with the code and to check out the [Programming Guide](TODO: Link) for further documentation about the system.
+with the code and to check out the [Programming Guide](http://spark.apache.org/docs/latest/graphx-programming-guide.html) for further documentation about the system.
 
 
 #FAQ
