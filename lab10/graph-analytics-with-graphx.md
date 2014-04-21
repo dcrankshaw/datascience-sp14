@@ -109,7 +109,7 @@ Great! You have now "installed" GraphX.
 ### The Property Graph
 <a name="property_graph"></a>
 
-[PropertyGraph]: api/graphx/index.html#org.apache.spark.graphx.Graph
+[PropertyGraph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph
 
 The [property graph](PropertyGraph) is a directed multigraph with properties attached to each vertex and edge.
 A directed multigraph is a directed graph with potentially multiple parallel edges sharing the same source and destination vertex.
@@ -159,7 +159,7 @@ In the above example we make use of the [`Edge`][Edge] class. Edges have a `srcI
 `dstId` corresponding to the source and destination vertex identifiers. In addition, the `Edge`
 class has an `attr` member which stores the edge property (in this case the number of likes).
 
-[Edge]: api/graphx/index.html#org.apache.spark.graphx.Edge
+[Edge]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Edge
 
 Using `sc.parallelize` (introduced in the Spark tutorial) construct the following RDDs from `vertexArray` and `edgeArray`
 
@@ -232,7 +232,7 @@ for ((id,(name,age)) <- graph.vertices.filter { case (id,(name,age)) => age > 30
 In addition to the vertex and edge views of the property graph, GraphX also exposes a triplet view.
 The triplet view logically joins the vertex and edge properties yielding an `RDD[EdgeTriplet[VD, ED]]` containing instances of the [`EdgeTriplet`][EdgeTriplet] class. This *join* can be expressed in the following SQL expression:
 
-[EdgeTriplet]: api/graphx/index.html#org.apache.spark.graphx.EdgeTriplet
+[EdgeTriplet]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.EdgeTriplet
 
 ```SQL
 SELECT src.id, dst.id, src.attr, e.attr, dst.attr
@@ -370,8 +370,8 @@ However, thanks to the "magic" of Scala implicits the operators in `GraphOps` ar
 
 For example, we can compute the in-degree of each vertex (defined in `GraphOps`) by the following:
 
-[Graph]: api/graphx/index.html#org.apache.spark.graphx.Graph
-[GraphOps]: api/graphx/index.html#org.apache.spark.graphx.GraphOps
+[Graph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph
+[GraphOps]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.GraphOps
 
 ```scala
 val inDegrees: VertexRDD[Int] = graph.inDegrees
@@ -421,7 +421,7 @@ degreeGraph.vertices.filter {
 
 Using the property graph from Section 2.1, suppose we want to find the oldest follower of each user. The [`mapReduceTriplets`][Graph.mapReduceTriplets] operator allows us to do this. It enables neighborhood aggregation, and its simplified signature is as follows:
 
-[Graph.mapReduceTriplets]: api/graphx/index.html#org.apache.spark.graphx.Graph@mapReduceTriplets[A](mapFunc:org.apache.spark.graphx.EdgeTriplet[VD,ED]=&gt;Iterator[(org.apache.spark.graphx.VertexId,A)],reduceFunc:(A,A)=&gt;A,activeSetOpt:Option[(org.apache.spark.graphx.VertexRDD[_],org.apache.spark.graphx.EdgeDirection)])(implicitevidence$10:scala.reflect.ClassTag[A]):org.apache.spark.graphx.VertexRDD[A]
+[Graph.mapReduceTriplets]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph@mapReduceTriplets[A](mapFunc:org.apache.spark.graphx.EdgeTriplet[VD,ED]=&gt;Iterator[(org.apache.spark.graphx.VertexId,A)],reduceFunc:(A,A)=&gt;A,activeSetOpt:Option[(org.apache.spark.graphx.VertexRDD[_],org.apache.spark.graphx.EdgeDirection)])(implicitevidence$10:scala.reflect.ClassTag[A]):org.apache.spark.graphx.VertexRDD[A]
 
 ```scala
 class Graph[VD, ED] {
@@ -471,7 +471,7 @@ Suppose we want to find users in the above graph who are lonely so we can sugges
 
 We can use the subgraph operator to consider only strong relationships with more than 2 likes. We do this by supplying an edge predicate only:
 
-[Graph.subgraph]: api/graphx/index.html#org.apache.spark.graphx.Graph@subgraph((EdgeTriplet[VD,ED])⇒Boolean,(VertexId,VD)⇒Boolean):Graph[VD,ED]
+[Graph.subgraph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph@subgraph((EdgeTriplet[VD,ED])⇒Boolean,(VertexId,VD)⇒Boolean):Graph[VD,ED]
 
 ```scala
 val graph: Graph[(String, Int), Int] // Constructed from above
