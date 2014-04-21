@@ -383,34 +383,41 @@ The map function is applied to each edge triplet in the graph, yielding messages
 We can find the oldest follower for each user by sending age messages along each edge and aggregating them with the `max` function:
 
 ```scala
-val graph: Graph[(String, Int), Int] // Constructed from above
-val oldestFollowerAge: VertexRDD[Int] = graph.mapReduceTriplets[Int](
-  edge => Iterator((edge.dstId, edge.srcAttr._2)),
-  (a, b) => max(a, b))
-
-val withNames = graph.vertices.innerJoin(oldestFollowerAge) {
-  (id, pair, oldestAge) => (pair._1, oldestAge)
-}
-
-withNames.foreach(println(_))
+// Find the oldest follower for each user
+val oldestFollower: VertexRDD[(String, Int)] = userGraph.mapReduceTriplets[(String, Int)](
+  // For each edge send a message to the destination vertex with the attribute of the source vertex
+  edge => Iterator((edge.dstId, (edge.srcAttr.name, edge.srcAttr.age))),
+  // To combine messages take the message for the older follower
+  (a, b) => if (a._2 > b._2) a else b
+  )
+  
+userGraph.vertices.leftJoin(oldestFollower) { (id, user, optOldestFollower) =>
+  optOldestFollower match {
+    case None => s"${user.name} does not have any followers."
+    case Some((name, age)) => s"${name} is the oldest follower of ${user.name}."
+  }
+}.foreach { case (id, str) => println(str) }
 ```
 
 As an exercise, try finding the average follower age for each user instead of the max.
 
 ```scala
-val graph: Graph[(String, Int), Int] // Constructed from above
-val oldestFollowerAge: VertexRDD[Int] = graph.mapReduceTriplets[Int](
-  // map function
-  edge => Iterator((edge.dstId, (1.0, edge.srcAttr._2))),
-  // reduce function
-  (a, b) => ((a._1 + b._1), (a._1*a._2 + b._1*b._2)/(a._1+b._1)))
+val averageAge: VertexRDD[Double] = userGraph.mapReduceTriplets[(Int, Double)](
+  // map function returns a tuple of (1, Age)
+  edge => Iterator((edge.dstId, (1, edge.srcAttr.age.toDouble))),
+  // reduce function combines (sumOfFollowers, sumOfAge)
+  (a, b) => ((a._1 + b._1), (a._2 + b._2))
+  ).mapValues((id, p) => p._2 / p._1)
 
-val withNames = graph.vertices.innerJoin(oldestFollowerAge) {
-  (id, pair, oldestAge) => (pair._1, oldestAge)
-}
-
-withNames.foreach(println(_))
+// Display the results
+userGraph.vertices.leftJoin(averageAge) { (id, user, optAverageAge) =>
+  optAverageAge match {
+    case None => s"${user.name} does not have any followers."
+    case Some(avgAge) => s"The average age of ${user.name}\'s followers is $avgAge."
+  }
+}.foreach { case (id, str) => println(str) }
 ```
+
 
 ### Subgraph
 
