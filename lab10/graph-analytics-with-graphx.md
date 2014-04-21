@@ -32,45 +32,45 @@ However, reading through that whole tutorial and trying the examples at the cons
 
 1. Declare a list of integers as a variable called "myNumbers".
 
-```scala
-val myNumbers = List(1, 2, 5, 4, 7, 3)
-```
+   ```scala
+   val myNumbers = List(1, 2, 5, 4, 7, 3)
+   ```
 
 1. Declare a function, `cube`, that computes the cube (third power) of an Int.
    See steps 2-4 of First Steps to Scala.
-
-```scala
-def cube(a: Int): Int = a * a * a
-```
-
+   
+   ```scala
+   def cube(a: Int): Int = a * a * a
+   ```
+   
 1. Apply the function to `myNumbers` using the `map` function. Hint: read about the `map` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a> and also in Table 1 about halfway through the <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a> tutorial.
 
-```scala
-myNumbers.map(x => cube(x))
-  // res: List[Int] = List(1, 8, 125, 64, 343, 27)
-// Scala also provides some shorthand ways of writing this:
-myNumbers.map(cube(_))
-// and
-myNumbers.map(cube)
-```
+   ```scala
+   myNumbers.map(x => cube(x))
+   // res: List[Int] = List(1, 8, 125, 64, 343, 27)
+   // Scala also provides some shorthand ways of writing this:
+   myNumbers.map(cube(_))
+   // and
+   myNumbers.map(cube)
+   ```
 
 1. Then also try writing the function inline in a `map` call, using closure notation.
 
-```   
-myNumbers.map{x => x * x * x}
-//res: List[Int] = List(1, 8, 125, 64, 343, 27)
-```
+  ```scala
+  myNumbers.map{x => x * x * x}
+  //res: List[Int] = List(1, 8, 125, 64, 343, 27)
+  ```
 
 1. Define a `factorial` function that computes n! = 1 * 2 * ... * n given input n.
    You can use either a loop or recursion, in our solution we use recursion (see steps 5-7 of <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a>).
    Then compute the sum of factorials in `myNumbers`. Hint: check out the `sum` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a>.
 
-```
-def factorial(n:Int):Int = if (n==0) 1 else n * factorial(n-1) // From http://bit.ly/b2sVKI
-// factorial: (Int)Int
-myNumbers.map(factorial).sum
-// res: Int = 5193
-```
+   ```scala
+   def factorial(n:Int):Int = if (n==0) 1 else n * factorial(n-1) // From http://bit.ly/b2sVKI
+   // factorial: (Int)Int
+   myNumbers.map(factorial).sum
+   // res: Int = 5193
+   ```
 
 ## Introduction to the GraphX API
 
