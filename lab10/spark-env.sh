@@ -24,9 +24,9 @@ SPARK_JAVA_OPTS+="-Xmx2G -XX:MaxPermSize=350m -XX:ReservedCodeCacheSize=256m   "
 SPARK_JAVA_OPTS+="-Dhadoop.security.authentication=simple "
 SPARK_JAVA_OPTS+="-Djava.security.krb5.realm=berkeley.edu -Djava.security.krb5.kdc=kdc.berkeley.edu "
 #"-Djava.security.krb5.realm=OX.AC.UK -Djava.security.krb5.kdc=kdc0.ox.ac.uk:kdc1.ox.ac.uk "
-SPARK_JAVA_OPTS+="-Dspark.serializer=org.apache.spark.serializer.KryoSerializer "
-SPARK_JAVA_OPTS+="-Dspark.kryo.registrator=org.apache.spark.graphx.GraphKryoRegistrator  "
-SPARK_JAVA_OPTS+="-Dspark.kryoserializer.buffer.mb=10 "
+#SPARK_JAVA_OPTS+="-Dspark.serializer=org.apache.spark.serializer.KryoSerializer "
+#SPARK_JAVA_OPTS+="-Dspark.kryo.registrator=org.apache.spark.graphx.GraphKryoRegistrator  "
+#SPARK_JAVA_OPTS+="-Dspark.kryoserializer.buffer.mb=10 "
 export SPARK_JAVA_OPTS
 
 export SPARK_WORKER_MEMORY=1G

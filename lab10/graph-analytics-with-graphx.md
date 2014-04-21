@@ -91,11 +91,24 @@ For the remainder of this lab, we will use the convention that `SPARK_HOME` refe
    Then compute the sum of factorials in `myNumbers`. Hint: check out the `sum` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a>.
 
    ```scala
-   def factorial(n:Int):Int = if (n==0) 1 else n * factorial(n-1) // From http://bit.ly/b2sVKI
-   // factorial: (Int)Int
+   def factorial(n: Int): Int = {
+     /* Todo: Implement the factorial function */
+   }
+   
+   /* Compute the sum of the factorials in the list */
+   val totalFactorial = /* Todo: Implement */
+   ```
+
+   Solution:
+
+   ```scala
+   def factorial(n: Int): Int = {
+     if (n==0) 1 else n * factorial(n-1) 
+   }
    myNumbers.map(factorial).sum
    // res: Int = 5193
    ```
+
 
 ## Exercise 1: Introduction to the GraphX API
 
@@ -207,6 +220,7 @@ Here is a hint:
 
 ```scala
 graph.vertices.filter { case (id, (name, age)) => /* CODE */ }.foreach { case (id, (name, age)) => /* CODE */ }
+// To print strings use: println(s"The variable x = ${x.getValue()}")
 ```
 
 Here are a few solutions:
@@ -369,77 +383,83 @@ The map function is applied to each edge triplet in the graph, yielding messages
 We can find the oldest follower for each user by sending age messages along each edge and aggregating them with the `max` function:
 
 ```scala
-val graph: Graph[(String, Int), Int] // Constructed from above
-val oldestFollowerAge: VertexRDD[Int] = graph.mapReduceTriplets[Int](
-  edge => Iterator((edge.dstId, edge.srcAttr._2)),
-  (a, b) => max(a, b))
-
-val withNames = graph.vertices.innerJoin(oldestFollowerAge) {
-  (id, pair, oldestAge) => (pair._1, oldestAge)
-}
-
-withNames.foreach(println(_))
+// Find the oldest follower for each user
+val oldestFollower: VertexRDD[(String, Int)] = userGraph.mapReduceTriplets[(String, Int)](
+  // For each edge send a message to the destination vertex with the attribute of the source vertex
+  edge => Iterator((edge.dstId, (edge.srcAttr.name, edge.srcAttr.age))),
+  // To combine messages take the message for the older follower
+  (a, b) => if (a._2 > b._2) a else b
+  )
+  
+userGraph.vertices.leftJoin(oldestFollower) { (id, user, optOldestFollower) =>
+  optOldestFollower match {
+    case None => s"${user.name} does not have any followers."
+    case Some((name, age)) => s"${name} is the oldest follower of ${user.name}."
+  }
+}.foreach { case (id, str) => println(str) }
 ```
 
 As an exercise, try finding the average follower age for each user instead of the max.
 
 ```scala
-val graph: Graph[(String, Int), Int] // Constructed from above
-val oldestFollowerAge: VertexRDD[Int] = graph.mapReduceTriplets[Int](
-  // map function
-  edge => Iterator((edge.dstId, (1.0, edge.srcAttr._2))),
-  // reduce function
-  (a, b) => ((a._1 + b._1), (a._1*a._2 + b._1*b._2)/(a._1+b._1)))
+val averageAge: VertexRDD[Double] = userGraph.mapReduceTriplets[(Int, Double)](
+  // map function returns a tuple of (1, Age)
+  edge => Iterator((edge.dstId, (1, edge.srcAttr.age.toDouble))),
+  // reduce function combines (sumOfFollowers, sumOfAge)
+  (a, b) => ((a._1 + b._1), (a._2 + b._2))
+  ).mapValues((id, p) => p._2 / p._1)
 
-val withNames = graph.vertices.innerJoin(oldestFollowerAge) {
-  (id, pair, oldestAge) => (pair._1, oldestAge)
-}
-
-withNames.foreach(println(_))
+// Display the results
+userGraph.vertices.leftJoin(averageAge) { (id, user, optAverageAge) =>
+  optAverageAge match {
+    case None => s"${user.name} does not have any followers."
+    case Some(avgAge) => s"The average age of ${user.name}\'s followers is $avgAge."
+  }
+}.foreach { case (id, str) => println(str) }
 ```
+
 
 ### Subgraph
 
-Suppose we want to find users in the above graph who are lonely so we can suggest new friends for them. The [subgraph][Graph.subgraph] operator takes vertex and edge predicates and returns the graph containing only the vertices that satisfy the vertex predicate (evaluate to true) and edges that satisfy the edge predicate *and connect vertices that satisfy the vertex predicate*.
+Suppose we want to study the community structure of users that are 30 or older.
+To support this type of analysis GraphX includes the [subgraph][Graph.subgraph] operator that takes vertex and edge predicates and returns the graph containing only the vertices that satisfy the vertex predicate (evaluate to true) and edges that satisfy the edge predicate *and connect vertices that satisfy the vertex predicate*.
 
-We can use the subgraph operator to consider only strong relationships with more than 2 likes. We do this by supplying an edge predicate only:
+In the following we restrict our graph to the users that are 30 or older.
 
 [Graph.subgraph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph@subgraph((EdgeTriplet[VD,ED])⇒Boolean,(VertexId,VD)⇒Boolean):Graph[VD,ED]
 
 ```scala
-val graph: Graph[(String, Int), Int] // Constructed from above
-val strongRelationships: Graph[(String, Int), Int] =
-graph.subgraph(epred = (edge => edge.attr > 2))
+val olderGraph = userGraph.subgraph(vpred = (id, user) => user.age >= 30)
 ```
 
-As an exercise, use this subgraph to find lonely users who have no strong relationships (i.e., have degree 0 in the subgraph).
+Lets examine the communities in this restricted graph:
 
 ```scala
-val strongRelationships: Graph[(String, Int), Int] = // from above
+// compute the connected components
+val cc = olderGraph.connectedComponents
 
-val lonely = strongRelationships.degrees.filter {
-  case (id, degree) => degree == 0
-}
-
-lonely.foreach(println(_))
+// display the component id of each user:
+olderGraph.vertices.leftJoin(cc.vertices) {
+  case (id, user, comp) => s"${user.name} is in component ${comp.get}"
+}.collect.foreach{ case (id, str) => println(str) }
 ```
+
+Connected components are labeled (numbered) by the lowest vertex Id in that component.  Notice that by examining the subgraph we have disconnected David from the rest of his community.  Moreover his connections to the rest of the graph are through younger users.
+
 
 
 ## Exercise 2: Using GraphX To Analyze a Real Graph
 <a name="football_exercise"></a>
 
 
-Now that you have learned about the GraphX API and played around with a toy graph, it's time to look at a graph representing real-world data.
-Many real-world graphs are very large and can be hard to analyze on a single machine - thus the creation of distributed graph analytics frameworks.
-But often when analyzing real data, we are interested in looking closely at some small portion of the data.
-When our data is a graph, this means that we are interested in looking closely at a subgraph which is itself another graph, and so we can use the same system to perform both types of analysis.
+Now that you have learned about the GraphX API, it's time to look at a graph representing real-world data.
+Many real-world graphs are very large and can be hard to analyze on a single machine. 
+However, in many cases we are interested in examing only a small portion of the original graph (i.e., a subgraph).
 In this exercise, you will be analyzing the Wikipedia link graph, extracted from the raw text of all articles in the English-language Wikipedia corpus.
 In this graph, each vertex represents an article in Wikipedia.
 There is an edge from Article A to Article B if A has a link to B.
-If we were to look at the entire link structure of Wikipedia, we would have a graph with 79M edges and 6.5M vertices, which would be hard to analyze on a laptop.
-Instead, we have used the GraphX system running on a cluster to create the link graph and take a subgraph from it, restricting the graph to only those vertices that have the word "Football" in their title.
+Unfortunatley, the full Wikipedia dataset can be difficult to process on a standard laptop so we used a GraphX cluster to extract the subgraph of articles containing the word "Football" in their title.
 It is this subgraph that you will be analyzing today.
-
 
 Start a new Spark shell so that you can run this exercise in a clean environment. Type `exit` to leave the Spark shell, and then start it again using the same command as before.
 
