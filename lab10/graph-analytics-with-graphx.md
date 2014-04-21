@@ -360,9 +360,38 @@ degreeGraph.vertices.filter {
 }.foreach(println(_))
 ```
 
+### Subgraph
+
+Suppose we want to study the community structure of users that are 30 or older.
+To support this type of analysis GraphX includes the [subgraph][Graph.subgraph] operator that takes vertex and edge predicates and returns the graph containing only the vertices that satisfy the vertex predicate (evaluate to true) and edges that satisfy the edge predicate *and connect vertices that satisfy the vertex predicate*.
+
+In the following we restrict our graph to the users that are 30 or older.
+
+[Graph.subgraph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph@subgraph((EdgeTriplet[VD,ED])⇒Boolean,(VertexId,VD)⇒Boolean):Graph[VD,ED]
+
+```scala
+val olderGraph = userGraph.subgraph(vpred = (id, user) => user.age >= 30)
+```
+
+Lets examine the communities in this restricted graph:
+
+```scala
+// compute the connected components
+val cc = olderGraph.connectedComponents
+
+// display the component id of each user:
+olderGraph.vertices.leftJoin(cc.vertices) {
+  case (id, user, comp) => s"${user.name} is in component ${comp.get}"
+}.collect.foreach{ case (id, str) => println(str) }
+```
+
+Connected components are labeled (numbered) by the lowest vertex Id in that component.  Notice that by examining the subgraph we have disconnected David from the rest of his community.  Moreover his connections to the rest of the graph are through younger users.
+
+
+
 ##Advanced Operators (Optional)
 
-The following two sections walk through some more advanced graph operators that you will not need to complete the lab. However, if you finish early you should try going through them. But if you want, you can skip to the [next exercise](#football_exercise).
+The following section walks through some more advanced graph operators that you will not need to complete the lab. However, if you finish early you should try going through them. But if you want, you can skip to the [next exercise](#football_exercise).
 
 ### The Map Reduce Triplets Operator
 
@@ -419,34 +448,6 @@ userGraph.vertices.leftJoin(averageAge) { (id, user, optAverageAge) =>
 ```
 
 
-### Subgraph
-
-Suppose we want to study the community structure of users that are 30 or older.
-To support this type of analysis GraphX includes the [subgraph][Graph.subgraph] operator that takes vertex and edge predicates and returns the graph containing only the vertices that satisfy the vertex predicate (evaluate to true) and edges that satisfy the edge predicate *and connect vertices that satisfy the vertex predicate*.
-
-In the following we restrict our graph to the users that are 30 or older.
-
-[Graph.subgraph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph@subgraph((EdgeTriplet[VD,ED])⇒Boolean,(VertexId,VD)⇒Boolean):Graph[VD,ED]
-
-```scala
-val olderGraph = userGraph.subgraph(vpred = (id, user) => user.age >= 30)
-```
-
-Lets examine the communities in this restricted graph:
-
-```scala
-// compute the connected components
-val cc = olderGraph.connectedComponents
-
-// display the component id of each user:
-olderGraph.vertices.leftJoin(cc.vertices) {
-  case (id, user, comp) => s"${user.name} is in component ${comp.get}"
-}.collect.foreach{ case (id, str) => println(str) }
-```
-
-Connected components are labeled (numbered) by the lowest vertex Id in that component.  Notice that by examining the subgraph we have disconnected David from the rest of his community.  Moreover his connections to the rest of the graph are through younger users.
-
-
 
 <a name="football_exercise"></a>
 ## Exercise 2: Using GraphX To Analyze a Real Graph
@@ -454,7 +455,7 @@ Connected components are labeled (numbered) by the lowest vertex Id in that comp
 
 Now that you have learned about the GraphX API, it's time to look at a graph representing real-world data.
 Many real-world graphs are very large and can be hard to analyze on a single machine. 
-However, in many cases we are interested in examing only a small portion of the original graph (i.e., a subgraph).
+However, in many cases we are interested in examining only a small portion of the original graph (i.e., a subgraph).
 In this exercise, you will be analyzing the Wikipedia link graph, extracted from the raw text of all articles in the English-language Wikipedia corpus.
 In this graph, each vertex represents an article in Wikipedia.
 There is an edge from Article A to Article B if A has a link to B.
