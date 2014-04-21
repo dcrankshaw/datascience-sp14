@@ -91,11 +91,24 @@ For the remainder of this lab, we will use the convention that `SPARK_HOME` refe
    Then compute the sum of factorials in `myNumbers`. Hint: check out the `sum` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a>.
 
    ```scala
-   def factorial(n:Int):Int = if (n==0) 1 else n * factorial(n-1) // From http://bit.ly/b2sVKI
-   // factorial: (Int)Int
+   def factorial(n: Int): Int = {
+     /* Todo: Implement the factorial function */
+   }
+   
+   /* Compute the sum of the factorials in the list */
+   val totalFactorial = /* Todo: Implement */
+   ```
+
+   Solution:
+
+   ```scala
+   def factorial(n: Int): Int = {
+     if (n==0) 1 else n * factorial(n-1) 
+   }
    myNumbers.map(factorial).sum
    // res: Int = 5193
    ```
+
 
 ## Exercise 1: Introduction to the GraphX API
 
