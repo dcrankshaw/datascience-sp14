@@ -20,13 +20,12 @@
 # - SPARK_WORKER_INSTANCES, to set the number of worker processes per node
 
 SPARK_JAVA_OPTS="-Dspark.local.dir=/tmp "
-SPARK_JAVA_OPTS+="-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n "
-SPARK_JAVA_OPTS+="-Xmx4G -XX:MaxPermSize=350m -XX:ReservedCodeCacheSize=256m   "
+SPARK_JAVA_OPTS+="-Xmx2G -XX:MaxPermSize=350m -XX:ReservedCodeCacheSize=256m   "
 SPARK_JAVA_OPTS+="-Dhadoop.security.authentication=simple "
 SPARK_JAVA_OPTS+="-Djava.security.krb5.realm=berkeley.edu -Djava.security.krb5.kdc=kdc.berkeley.edu "
 #"-Djava.security.krb5.realm=OX.AC.UK -Djava.security.krb5.kdc=kdc0.ox.ac.uk:kdc1.ox.ac.uk "
 SPARK_JAVA_OPTS+="-Dspark.serializer=org.apache.spark.serializer.KryoSerializer "
-SPARK_JAVA_OPTS+="-Dspark.kryo.registrator=org.apache.spark.graph.GraphKryoRegistrator  "
+SPARK_JAVA_OPTS+="-Dspark.kryo.registrator=org.apache.spark.graphx.GraphKryoRegistrator  "
 SPARK_JAVA_OPTS+="-Dspark.kryoserializer.buffer.mb=10 "
 export SPARK_JAVA_OPTS
 
