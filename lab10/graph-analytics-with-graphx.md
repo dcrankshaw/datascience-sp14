@@ -113,7 +113,7 @@ Great! You have now "installed" GraphX.
 ### The Property Graph
 <a name="property_graph"></a>
 
-[PropertyGraph]: api/graphx/index.html#org.apache.spark.graphx.Graph
+[PropertyGraph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph
 
 The [property graph](PropertyGraph) is a directed multigraph with properties attached to each vertex and edge.
 A directed multigraph is a directed graph with potentially multiple parallel edges sharing the same source and destination vertex.
@@ -160,10 +160,13 @@ val edgeArray = Array(
 ```
 
 In the above example we make use of the `Edge` class. Edges have a `srcId` and a
-`dstId` corresponding to the source and destination vertex identifiers. In addition, the `Edge`
+`dstId` corresponding to the source and destination vertex identifiers. In addition, the [`Edge`][Edge]
 class has an `attr` member which stores the edge property (in this case the number of likes).
 
+[Edge]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Edge
+
 Using `sc.parallelize` construct the following RDDs from `vertexArray` and `edgeArray`
+
 
 ```scala
 val vertexRDD: RDD[(Long, (String, Int))] = /* CODE */
@@ -232,9 +235,9 @@ for ((id,(name,age)) <- graph.vertices.filter { case (id,(name,age)) => age > 30
 ```
 
 In addition to the vertex and edge views of the property graph, GraphX also exposes a triplet view.
-The triplet view logically joins the vertex and edge properties yielding an `RDD[EdgeTriplet[VD, ED]]` containing instances of the `EdgeTriplet` class. This *join* can be expressed in the following SQL expression:
+The triplet view logically joins the vertex and edge properties yielding an `RDD[EdgeTriplet[VD, ED]]` containing instances of the [`EdgeTriplet`][EdgeTriplet] class. This *join* can be expressed in the following SQL expression:
 
-<!---[EdgeTriplet]: api/graphx/index.html#org.apache.spark.graphx.EdgeTriplet-->
+[EdgeTriplet]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.EdgeTriplet
 
 ```SQL
 SELECT src.id, dst.id, src.attr, e.attr, dst.attr
@@ -469,7 +472,7 @@ Suppose we want to find users in the above graph who are lonely so we can sugges
 
 We can use the subgraph operator to consider only strong relationships with more than 2 likes. We do this by supplying an edge predicate only:
 
-[Graph.subgraph]: api/graphx/index.html#org.apache.spark.graphx.Graph@subgraph((EdgeTriplet[VD,ED])⇒Boolean,(VertexId,VD)⇒Boolean):Graph[VD,ED]
+[Graph.subgraph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph@subgraph((EdgeTriplet[VD,ED])⇒Boolean,(VertexId,VD)⇒Boolean):Graph[VD,ED]
 
 ```scala
 val graph: Graph[(String, Int), Int] // Constructed from above
