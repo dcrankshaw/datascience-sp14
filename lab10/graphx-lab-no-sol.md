@@ -57,26 +57,26 @@ However, reading through that whole tutorial and trying the examples at the cons
 
 For the remainder of this lab, we will use the convention that `SPARK_HOME` refers to the root of your Spark directory. For example, in the saasbook VM `SPARK_HOME=/home/saasbook/spark-0.9.1-bin-cdh4'
 
-1. Launch the Spark REPL by typing:
++ Launch the Spark REPL by typing:
 
    ```
    SPARK_HOME/bin/spark-shell
    ```
 
-1. Declare a list of integers as a variable called "myNumbers".
++ Declare a list of integers as a variable called "myNumbers".
 
    ```scala
    val myNumbers = List(1, 2, 5, 4, 7, 3)
    ```
 
-1. Declare a function, `cube`, that computes the cube (third power) of an Int.
++ Declare a function, `cube`, that computes the cube (third power) of an Int.
    See steps 2-4 of [First Steps to Scala](http://www.artima.com/scalazine/articles/steps.html).
    
    ```scala
    def cube(a: Int): Int = a * a * a
    ```
    
-1. Apply the function to `myNumbers` using the `map` function. Hint: read about the `map` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a> and also in Table 1 about halfway through the <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a> tutorial.
++ Apply the function to `myNumbers` using the `map` function. Hint: read about the `map` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a> and also in Table 1 about halfway through the <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a> tutorial.
 
    ```scala
    myNumbers.map(x => cube(x))
@@ -87,7 +87,7 @@ For the remainder of this lab, we will use the convention that `SPARK_HOME` refe
    myNumbers.map(cube)
    ```
 
-1. Then also try writing the function inline in a `map` call, using closure notation.
++ Then also try writing the function inline in a `map` call, using closure notation.
 
   ```scala
   myNumbers.map{x => x * x * x}
@@ -95,7 +95,7 @@ For the remainder of this lab, we will use the convention that `SPARK_HOME` refe
   ```
 
 ###DIY
-1. Define a `factorial` function that computes n! = 1 * 2 * ... * n given input n.
++ Define a `factorial` function that computes n! = 1 * 2 * ... * n given input n.
    You can use either a loop or recursion, in our solution we use recursion (see steps 5-7 of <a href="http://www.artima.com/scalazine/articles/steps.html" target="_blank">First Steps to Scala</a>).
    Then compute the sum of factorials in `myNumbers`. Hint: check out the `sum` function in <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.immutable.List" target="_blank">the Scala List API</a>.
 
