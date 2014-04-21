@@ -421,29 +421,31 @@ userGraph.vertices.leftJoin(averageAge) { (id, user, optAverageAge) =>
 
 ### Subgraph
 
-Suppose we want to find users in the above graph who are lonely so we can suggest new friends for them. The [subgraph][Graph.subgraph] operator takes vertex and edge predicates and returns the graph containing only the vertices that satisfy the vertex predicate (evaluate to true) and edges that satisfy the edge predicate *and connect vertices that satisfy the vertex predicate*.
+Suppose we want to study the community structure of users that are 30 or older.
+To support this type of analysis GraphX includes the [subgraph][Graph.subgraph] operator that takes vertex and edge predicates and returns the graph containing only the vertices that satisfy the vertex predicate (evaluate to true) and edges that satisfy the edge predicate *and connect vertices that satisfy the vertex predicate*.
 
-We can use the subgraph operator to consider only strong relationships with more than 2 likes. We do this by supplying an edge predicate only:
+In the following we restrict our graph to the users that are 30 or older.
 
 [Graph.subgraph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph@subgraph((EdgeTriplet[VD,ED])⇒Boolean,(VertexId,VD)⇒Boolean):Graph[VD,ED]
 
 ```scala
-val graph: Graph[(String, Int), Int] // Constructed from above
-val strongRelationships: Graph[(String, Int), Int] =
-graph.subgraph(epred = (edge => edge.attr > 2))
+val olderGraph = userGraph.subgraph(vpred = (id, user) => user.age >= 30)
 ```
 
-As an exercise, use this subgraph to find lonely users who have no strong relationships (i.e., have degree 0 in the subgraph).
+Lets examine the communities in this restricted graph:
 
 ```scala
-val strongRelationships: Graph[(String, Int), Int] = // from above
+// compute the connected components
+val cc = olderGraph.connectedComponents
 
-val lonely = strongRelationships.degrees.filter {
-  case (id, degree) => degree == 0
-}
-
-lonely.foreach(println(_))
+// display the component id of each user:
+olderGraph.vertices.leftJoin(cc.vertices) {
+  case (id, user, comp) => s"${user.name} is in component ${comp.get}"
+}.collect.foreach{ case (id, str) => println(str) }
 ```
+
+Connected components are labeled (numbered) by the lowest vertex Id in that component.  Notice that by examining the subgraph we have disconnected David from the rest of his community.  Moreover his connections to the rest of the graph are through younger users.
+
 
 
 ## Exercise 2: Using GraphX To Analyze a Real Graph
