@@ -8,6 +8,7 @@
 
 <!-- In this chapter we use GraphX to analyze Wikipedia data and implement graph algorithms in Spark. As with other exercises we will work with a subset of the Wikipedia traffic statistics data from May 5-7, 2009. In particular, this dataset only includes a subset of all Wikipedia articles. -->
 
+<!---
 GraphX is the new Spark API for graphs (e.g., Web-Graphs and Social Networks) and graph-parallel computation (e.g., PageRank and Collaborative Filtering).
 At a high-level, GraphX extends the Spark RDD abstraction by introducing the [Resilient Distributed Property Graph](#property_graph): a directed multigraph with properties attached to each vertex and edge.
 To support graph computation, GraphX exposes a set of fundamental operators (e.g., [subgraph](#structural_operators), [joinVertices](#join_operators), and [mapReduceTriplets](#mrTriplets)) as well as an optimized variant of the [Pregel](#pregel) API.
@@ -16,6 +17,7 @@ In addition, GraphX includes a growing collection of graph [algorithms](#graph_a
 
 In this chapter we use GraphX to analyze Wikipedia data and implement graph algorithms in Spark.
 The GraphX API is currently only available in Scala but we plan to provide Java and Python bindings in the future.
+-->
 
 ## Background on Graph-Parallel Computation (Optional)
 
@@ -70,17 +72,19 @@ However, we encourage Bagel users to explore the new GraphX API and comment on i
 -->
 
 
-## Introduction to the GraphX API
+## Exercise 1: Introduction to the GraphX API
 
 Because GraphX is a new addition to Spark, there is no Python API for it yet. This means you need to program in Scala to use GraphX.
 
 We will be using the Spark shell for this assignment, which is a modified Scala REPL (Read-Eval-Print Loop). You will be running Spark locally on your laptop for this assignment.
 
+If you have never programmed in Scala before, we recommend working through these [exercises](http://ampcamp.berkeley.edu/big-data-mini-course/introduction-to-the-scala-shell.html) as a gentle introduction to Scala in a REPL.
+
 __Note__: There are some exercises in this lab that require you to write code in the Spark shell. We recommend that you use a text-editor to write the code, and then once you think you have it working copy and paste it into the shell. This way, if you have a syntax error or something goes wrong (e.g. you accidentally exit the shell), you will have all your work saved.
 
 Before you start Spark, there are a few settings to update.
 
-In the `lab10/` directory of the GitHub repository, there are two files, `spark-env.sh` and `log4j.properties`. Copy these two files into the the `/conf` subdirectory of your Spark installation.
+In the `lab10/` directory of the GitHub repository for the class there are two files, `spark-env.sh` and `log4j.properties`. Copy these two files into the the `/conf` subdirectory of your Spark installation.
 
 For example, if the root of my Spark directory is `/home/saasbook/spark-0.9.1-bin-cdh4`, I would do:
 
@@ -118,7 +122,7 @@ Each vertex is keyed by a *unique* 64-bit long identifier (`VertexID`).
 Similarly, edges have corresponding source and destination vertex identifiers.
 The properties are stored as Scala/Java objects with each edge and vertex in the graph.
 
-Throughout the first half of this tutorial we will use the following toy property graph.
+Throughout the first half of this lab we will use the following toy property graph.
 While this is hardly <i>big data</i>, it provides an opportunity to learn about the graph data model and the GraphX API.  In this example we have a small social network with users and their ages modeled as vertices and likes modeled as directed edges.  In this fictional scenario users can like other users multiple times.
 
 
@@ -132,7 +136,7 @@ While this is hardly <i>big data</i>, it provides an opportunity to learn about 
 
 We begin by creating the property graph from arrays of vertices and edges.
 Later we will demonstrate how to load real data.
-Paste the following code into the spark shell.
+Paste the following code into the shell.
 
 ```scala
 val vertexArray = Array(
@@ -155,20 +159,18 @@ val edgeArray = Array(
   )
 ```
 
-In the above example we make use of the [`Edge`][Edge] class. Edges have a `srcId` and a
+In the above example we make use of the `Edge` class. Edges have a `srcId` and a
 `dstId` corresponding to the source and destination vertex identifiers. In addition, the `Edge`
 class has an `attr` member which stores the edge property (in this case the number of likes).
 
-[Edge]: api/graphx/index.html#org.apache.spark.graphx.Edge
-
-Using `sc.parallelize` (introduced in the Spark tutorial) construct the following RDDs from `vertexArray` and `edgeArray`
+Using `sc.parallelize` construct the following RDDs from `vertexArray` and `edgeArray`
 
 ```scala
-val vertexRDD: RDD[(Long, (String, Int))] = // Implement
-val edgeRDD: RDD[Edge[Int]] = // Implement
+val vertexRDD: RDD[(Long, (String, Int))] = /* CODE */
+val edgeRDD: RDD[Edge[Int]] = /* CODE */
 ```
 
-In case you get stuck (or skipped the Spark tutorial) here is the solution.
+In case you get stuck here is the solution.
 
 ```scala
 val vertexRDD: RDD[(Long, (String, Int))] = sc.parallelize(vertexArray)
@@ -209,7 +211,7 @@ Charlie is 65
 Here is a hint:
 
 ```scala
-graph.vertices.filter { /** Implement */ }.collect.foreach { /** implement */ }
+graph.vertices.filter { /* CODE */ }.collect.foreach { /** CODE */ }
 ```
 
 Here are a few solutions:
@@ -230,9 +232,9 @@ for ((id,(name,age)) <- graph.vertices.filter { case (id,(name,age)) => age > 30
 ```
 
 In addition to the vertex and edge views of the property graph, GraphX also exposes a triplet view.
-The triplet view logically joins the vertex and edge properties yielding an `RDD[EdgeTriplet[VD, ED]]` containing instances of the [`EdgeTriplet`][EdgeTriplet] class. This *join* can be expressed in the following SQL expression:
+The triplet view logically joins the vertex and edge properties yielding an `RDD[EdgeTriplet[VD, ED]]` containing instances of the `EdgeTriplet` class. This *join* can be expressed in the following SQL expression:
 
-[EdgeTriplet]: api/graphx/index.html#org.apache.spark.graphx.EdgeTriplet
+<!---[EdgeTriplet]: api/graphx/index.html#org.apache.spark.graphx.EdgeTriplet-->
 
 ```SQL
 SELECT src.id, dst.id, src.attr, e.attr, dst.attr
@@ -250,7 +252,7 @@ or graphically as:
   <!-- Images are downsized intentionally to improve quality on retina displays -->
 </p>
 
-The [`EdgeTriplet`][EdgeTriplet] class extends the [`Edge`][Edge] class by adding the `srcAttr` and `dstAttr` members which contain the source and destination properties respectively.
+The `EdgeTriplet` class extends the `Edge` class by adding the `srcAttr` and `dstAttr` members which contain the source and destination properties respectively.
 
 
 Use the `graph.triplets` view to display who likes who.  The output should look like:
@@ -301,7 +303,7 @@ for (triplet <- graph.triplets.filter(t => t.attr > 5)) {
 ## Graph Operators
 
 Just as RDDs have basic operations like `count`, `map`, `filter`, and `reduceByKey`, property graphs also have a collection of basic operations.
-The following is a list of some of the many functions exposed by the Graph API.
+The following is a list of some of the many functions exposed by the Graph API (here is a link to the full [documentation](http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.package)).
 
 ```scala
 /** Summary of the functionality in the property graph */
@@ -318,13 +320,9 @@ class Graph[VD, ED] {
   val edges: EdgeRDD[ED]
   val triplets: RDD[EdgeTriplet[VD, ED]]
 
-  // Change the partitioning heuristic
-  def partitionBy(partitionStrategy: PartitionStrategy): Graph[VD, ED]
-
   // Transform vertex and edge attributes
   def mapVertices[VD2](map: (VertexID, VD) => VD2): Graph[VD2, ED]
   def mapEdges[ED2](map: Edge[ED] => ED2): Graph[VD, ED2]
-  def mapEdges[ED2](map: (PartitionID, Iterator[Edge[ED]]) => Iterator[ED2]): Graph[VD, ED2]
   def mapTriplets[ED2](map: EdgeTriplet[VD, ED] => ED2): Graph[VD, ED2]
 
   // Modify the graph structure
@@ -370,8 +368,8 @@ However, thanks to the "magic" of Scala implicits the operators in `GraphOps` ar
 
 For example, we can compute the in-degree of each vertex (defined in `GraphOps`) by the following:
 
-[Graph]: api/graphx/index.html#org.apache.spark.graphx.Graph
-[GraphOps]: api/graphx/index.html#org.apache.spark.graphx.GraphOps
+[Graph]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph
+[GraphOps]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.GraphOps
 
 ```scala
 val inDegrees: VertexRDD[Int] = graph.inDegrees
@@ -379,13 +377,13 @@ val inDegrees: VertexRDD[Int] = graph.inDegrees
 
 In the above example the `graph.inDegrees` operators returned a `VertexRDD[Int]` (recall that this behaves like `RDD[(VertexId, Int)]`).  What if we wanted to incorporate the in and out degree of each vertex into the vertex property?  To do this we will use a set of common graph operators.
 
-Paste the following code into the spark shell:
+Paste the following code into the Spark shell:
 
 ```scala
 // Define a class to more clearly model the user property
 case class User(name: String, age: Int, inDeg: Int, outDeg: Int)
 
-// Transform the
+// Transform the graph
 val userGraph = graph.mapVertices{ case (id, (name, age)) => User(name, age, 0, 0) }
 
 // Fill in the degree information
@@ -409,7 +407,7 @@ The first contains an `RDD` of vertex values and the second argument list takes 
 Note that it is possible that the input `RDD` may not contain values for some of the vertices in the graph.
 In these cases the `Option` argument is empty and `optOutDeg.getOrElse(0)` returns 0.
 
-Print the names of the users who liked by the same number of people they like.
+Print the names of the users who were liked by the same number of people they like.
 
 ```scala
 degreeGraph.vertices.filter {
@@ -421,7 +419,7 @@ degreeGraph.vertices.filter {
 
 Using the property graph from Section 2.1, suppose we want to find the oldest follower of each user. The [`mapReduceTriplets`][Graph.mapReduceTriplets] operator allows us to do this. It enables neighborhood aggregation, and its simplified signature is as follows:
 
-[Graph.mapReduceTriplets]: api/graphx/index.html#org.apache.spark.graphx.Graph@mapReduceTriplets[A](mapFunc:org.apache.spark.graphx.EdgeTriplet[VD,ED]=&gt;Iterator[(org.apache.spark.graphx.VertexId,A)],reduceFunc:(A,A)=&gt;A,activeSetOpt:Option[(org.apache.spark.graphx.VertexRDD[_],org.apache.spark.graphx.EdgeDirection)])(implicitevidence$10:scala.reflect.ClassTag[A]):org.apache.spark.graphx.VertexRDD[A]
+[Graph.mapReduceTriplets]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.Graph@mapReduceTriplets[A](mapFunc:org.apache.spark.graphx.EdgeTriplet[VD,ED]=&gt;Iterator[(org.apache.spark.graphx.VertexId,A)],reduceFunc:(A,A)=&gt;A,activeSetOpt:Option[(org.apache.spark.graphx.VertexRDD[_],org.apache.spark.graphx.EdgeDirection)])(implicitevidence$10:scala.reflect.ClassTag[A]):org.apache.spark.graphx.VertexRDD[A]
 
 ```scala
 class Graph[VD, ED] {
@@ -492,9 +490,18 @@ lonely.collect.foreach(println(_))
 ```
 
 
-## Using GraphX To Analyze a Real Graph
+## Exercise 2: Using GraphX To Analyze a Real Graph
 
-Now that you have learned about the GraphX API and played around with a toy graph, it's time to look at graph representing real-world data. Many real-world graphs are very large and can be hard to analyze on a single machine - thus the creation of distributed graph analytics platforms. But often when analyzing real data, we are interested in looking closely at some small portion of the data. When our data is graph, this means that we are interested in looking closely at subgraph which is itself another graph, and so we can use the same techniques. In this exercise, our original dataset was the text of all articles in the English-language Wikipedia. We will be analyzing the Wikipedia link graph. In this graph, each vertex represents an article in Wikipedia. There is an edge from Article A to Article B if A has a link to B. If we were to look at the entire link structure of Wikipedia, we would have a graph with 79M edges and 6.5M vertices. This would be hard to analyze on a laptop. Instead, we have used the GraphX system running on a cluster to create the link graph and take a subgraph from it, restricting the graph to only those vertices that have the word "Football" in their title. It is this subgraph that you will be analyzing today.
+Now that you have learned about the GraphX API and played around with a toy graph, it's time to look at graph representing real-world data.
+Many real-world graphs are very large and can be hard to analyze on a single machine - thus the creation of distributed graph analytics frameworks.
+But often when analyzing real data, we are interested in looking closely at some small portion of the data.
+When our data is a graph, this means that we are interested in looking closely at a subgraph which is itself another graph, and so we can use the same system to perform both types of analysis.
+In this exercise, you will be analyzing the Wikipedia link graph, extracted from the raw text of all articles in the English-language Wikipedia corpus.
+In this graph, each vertex represents an article in Wikipedia.
+There is an edge from Article A to Article B if A has a link to B.
+If we were to look at the entire link structure of Wikipedia, we would have a graph with 79M edges and 6.5M vertices, which would be hard to analyze on a laptop.
+Instead, we have used the GraphX system running on a cluster to create the link graph and take a subgraph from it, restricting the graph to only those vertices that have the word "Football" in their title.
+It is this subgraph that you will be analyzing today.
 
 
 Start a new Spark shell so that you can run this exercise in a clean environment. Type `exit` to leave the Spark shell, and then start it again using the same command as before.
@@ -510,9 +517,11 @@ import org.apache.spark.graphx._
 import org.apache.spark.graphx.lib._
 ```
 
-Now load the data from your local disk into Spark. The data is in two files - an edge file and a vertex file - located in the lab10_data subdirectory of this lab's directory.
+Now load the data from your local filesystem into Spark. The data is in two files - an edge file and a vertex file - located in the `lab10_data` subdirectory of this lab's directory.
 
-First load the edge data using the GraphLoader object (you may need to adjust the path to the file):
+To load the edge list, we can use the [`GraphLoader.edgeListFile`][GraphLoader] method, which is a convenient way to create a `Graph` object directly from a file formatted as an edge list (you may need to adjust the path to the file).
+
+[GraphLoader]: http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.GraphLoader
 
 
 ```scala
@@ -664,3 +673,9 @@ Based on the number of vertices in the graph, does the largest connected compone
 
 This brings us to the end of the lab. We encourage you to continue playing
 with the code and to check out the [Programming Guide](TODO: Link) for further documentation about the system.
+
+
+#FAQ
+####Where can I find documentation for the GraphX API?####
+The scaladocs for GraphX (and the rest of Spark) can be found [here](http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.package) on the Spark project website.
+
