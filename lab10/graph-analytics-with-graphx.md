@@ -452,17 +452,14 @@ Connected components are labeled (numbered) by the lowest vertex Id in that comp
 <a name="football_exercise"></a>
 
 
-Now that you have learned about the GraphX API and played around with a toy graph, it's time to look at a graph representing real-world data.
-Many real-world graphs are very large and can be hard to analyze on a single machine - thus the creation of distributed graph analytics frameworks.
-But often when analyzing real data, we are interested in looking closely at some small portion of the data.
-When our data is a graph, this means that we are interested in looking closely at a subgraph which is itself another graph, and so we can use the same system to perform both types of analysis.
+Now that you have learned about the GraphX API, it's time to look at a graph representing real-world data.
+Many real-world graphs are very large and can be hard to analyze on a single machine. 
+However, in many cases we are interested in examing only a small portion of the original graph (i.e., a subgraph).
 In this exercise, you will be analyzing the Wikipedia link graph, extracted from the raw text of all articles in the English-language Wikipedia corpus.
 In this graph, each vertex represents an article in Wikipedia.
 There is an edge from Article A to Article B if A has a link to B.
-If we were to look at the entire link structure of Wikipedia, we would have a graph with 79M edges and 6.5M vertices, which would be hard to analyze on a laptop.
-Instead, we have used the GraphX system running on a cluster to create the link graph and take a subgraph from it, restricting the graph to only those vertices that have the word "Football" in their title.
+Unfortunatley, the full Wikipedia dataset can be difficult to process on a standard laptop so we used a GraphX cluster to extract the subgraph of articles containing the word "Football" in their title.
 It is this subgraph that you will be analyzing today.
-
 
 Start a new Spark shell so that you can run this exercise in a clean environment. Type `exit` to leave the Spark shell, and then start it again using the same command as before.
 
