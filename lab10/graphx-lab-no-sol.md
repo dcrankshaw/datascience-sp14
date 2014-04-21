@@ -96,19 +96,8 @@ For the remainder of this lab, we will use the convention that `SPARK_HOME` refe
    }
    
    /* Compute the sum of the factorials in the list */
-   val totalFactorial = /* Todo: Implement */
+   val totalFactorial = /* CODE */
    ```
-
-   Solution:
-
-   ```scala
-   def factorial(n: Int): Int = {
-     if (n==0) 1 else n * factorial(n-1) 
-   }
-   myNumbers.map(factorial).sum
-   // res: Int = 5193
-   ```
-
 
 ## Exercise 1: Introduction to the GraphX API
 
@@ -186,13 +175,6 @@ val vertexRDD: RDD[(Long, (String, Int))] = sc.parallelize(vertexArray)
 val edgeRDD: RDD[Edge[Int]] = /* CODE */
 ```
 
-In case you get stuck here is the solution.
-
-```scala
-val vertexRDD: RDD[(Long, (String, Int))] = sc.parallelize(vertexArray)
-val edgeRDD: RDD[Edge[Int]] = sc.parallelize(edgeArray)
-```
-
 Now we are ready to build a property graph.  The basic property graph constructor takes an RDD of vertices (with type `RDD[(VertexId, V)]`) and an RDD of edges (with type `RDD[Edge[E]]`) and builds a graph (with type `Graph[V, E]`).  Try the following:
 
 ```scala
@@ -221,14 +203,6 @@ Here is a hint:
 ```scala
 graph.vertices.filter { case (id, (name, age)) => /* CODE */ }.foreach { case (id, (name, age)) => /* CODE */ }
 // To print strings use: println(s"The variable x = ${x.getValue()}")
-```
-
-Here are a few solutions:
-
-```scala
-graph.vertices.filter { case (id, (name, age)) => age > 30 }.foreach {
-  case (id, (name, age)) => println(s"$name is $age")
-}
 ```
 
 In addition to the vertex and edge views of the property graph, GraphX also exposes a triplet view.
@@ -283,22 +257,9 @@ for (triplet <- graph.triplets) {
 }
 ```
 
-Here is the solution:
-
-```scala
-for (triplet <- graph.triplets) {
-  println( s"${triplet.srcAttr._1} likes ${triplet.dstAttr._1}")
-}
-```
-
 If someone likes someone else more than 5 times than that relationship is getting pretty serious.
 For extra credit, find the lovers.
 
-```scala
-for (triplet <- graph.triplets.filter(t => t.attr > 5)) {
-  println( s"${triplet.srcAttr._1} loves ${triplet.dstAttr._1}")
-}
-```
 
 ## Graph Operators
 
@@ -353,13 +314,6 @@ degreeGraph.vertices.filter {
 }.foreach(println(_))
 ```
 
-SOLUTION:
-```scala
-degreeGraph.vertices.filter {
-  case (id, u) => u.inDeg == u.outDeg
-}.foreach(println(_))
-```
-
 ### Subgraph
 
 Suppose we want to study the community structure of users that are 30 or older.
@@ -386,8 +340,6 @@ olderGraph.vertices.leftJoin(cc.vertices) {
 ```
 
 Connected components are labeled (numbered) by the lowest vertex Id in that component.  Notice that by examining the subgraph we have disconnected David from the rest of his community.  Moreover his connections to the rest of the graph are through younger users.
-
-
 
 ##Advanced Operators (Optional)
 
@@ -522,12 +474,7 @@ What is the max in-degree of this graph?
 val maxDegree = g.inDegrees.map{ case (vid, data) => data}.reduce(/* CODE */)
 ```
 
-SOLUTION
-```scala
-val maxDegree = g.inDegrees.map{ case (vid, data) => data}.reduce(math.max(_, _))
-```
-
-And now look at what some of the triplets look like:
+And now check out at what some of the triplets look like:
 
 ```scala
 g.triplets.map(t => s"[${t.srcAttr}] links to [${t.dstAttr}]").take(2)
@@ -560,13 +507,6 @@ val ranksAndVertices: Graph[(String, Double), Int] = g.outerJoinVertices(prs.ver
 
 When we used `outerJoinVertices` to construct our graph, we didn't care about the existing vertex properties, we just replaced them. But in this case, we are joining the rank vertex properties and the title vertex properties into a tuple, keeping both around.
 
-SOLUTION
-```scala
-val ranksAndVertices = g.outerJoinVertices(prs.vertices){
-  (v, title, r) => (r.getOrElse(0.0), title)
-}
-```
-
 Once you have joined the article titles with their ranks, we can use Spark's `RDD.top()` function to find the top-ranked articles:
 
 ```scala
@@ -598,16 +538,7 @@ ccSizes.map{ case (ccID, size) => size }.collect.sorted
 ccResult.vertices.count
 ```
 
-SOLUTION
-```scala
-val ccSizes = ccResult.vertices.map { case (vid, data) => (data, 1) }.reduceByKey((_ + _))
-ccSizes.map{ case (ccID, size) => size }.collect.sorted
-ccResult.vertices.count
-```
-
-
 Does it look like your graph has a single big component?
-
 
 This brings us to the end of the lab. We encourage you to continue playing
 with the code and to check out the [Programming Guide](http://spark.apache.org/docs/latest/graphx-programming-guide.html) for further documentation about the system.
