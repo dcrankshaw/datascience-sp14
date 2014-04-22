@@ -20,7 +20,7 @@ The GraphX API is currently only available in Scala but we plan to provide Java 
 -->
 ## Getting Started
 
-__Please answer the questions on the [response form](https://docs.google.com/a/berkeley.edu/forms/d/1rheE7Ls_mir6gD8JFo2em9XV71tPheBq9gwvxRZSfpQ/viewform) as you go through these exercises.__
+_Please answer the questions on the [response form](https://docs.google.com/a/berkeley.edu/forms/d/1rheE7Ls_mir6gD8JFo2em9XV71tPheBq9gwvxRZSfpQ/viewform) as you go through these exercises._
 
 Because GraphX is a new addition to Spark, there is no Python API for it yet. This means you need to program in Scala to use GraphX.
 
