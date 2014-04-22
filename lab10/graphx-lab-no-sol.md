@@ -87,7 +87,7 @@ For the remainder of this lab, we will use the convention that `SPARK_HOME` refe
    myNumbers.map(cube)
    ```
 
-+ Then also try writing the function inline in a `map` call, using closure notation.
++ Then also try writing the function inline in a `map` call, using closure notation. This is similar to using lambdas in Python (e.g. `map(myList, lambda x: x * x * x)`).
 
   ```scala
   myNumbers.map{x => x * x * x}
@@ -256,12 +256,12 @@ Ed likes Fran
 Here is a partial solution:
 
 ```scala
-for (triplet <- graph.triplets) {
+graph.triplets.foreach { t =>
  /**
    * Triplet has the following Fields:
    *   triplet.srcAttr: (String, Int) // triplet.srcAttr._1 is the name
-   *   triplet.dstAttr: (String, Int)
-   *   triplet.attr: Int
+   *   triplet.dstAttr: (String, Int) // The dst vertex property
+   *   triplet.attr: Int // The edge property
    *   triplet.srcId: VertexId
    *   triplet.dstId: VertexId
    */
@@ -448,7 +448,7 @@ To load the edge list, we can use the [`GraphLoader.edgeListFile`][GraphLoader] 
 
 ```scala
 // Change labshome to the appropriate value for your computer
-val labshome = "/home/saasbook/datascience-labs/lab10"
+val labshome = "/home/saasbook/datascience-sp14/lab10"
 val edgeGraph = GraphLoader.edgeListFile(sc, s"${labshome}/lab10_data/edges.txt")
 ```
 
@@ -501,7 +501,7 @@ Run Pagerank for 10 iterations:
 val prs = g.staticPageRank(10)
 ```
 
-That should have returned immediately due to Spark's lazy evaluation. The code won't actually be run until we try to access the results. The simplest way to trigger the execution is to count the results:
+That should have returned almost immediately due to Spark's lazy evaluation. The computation won't actually be run until we try to access the results. The simplest way to trigger the execution is to count the results:
 
 ```scala
 prs.triplets.count
@@ -515,7 +515,7 @@ Notice that the result of running PageRank is another `Graph` object, but this g
 Go ahead and try this out:
 
 ```scala
-val ranksAndVertices: Graph[(String, Double), Int] = g.outerJoinVertices(prs.vertices){
+val ranksAndVertices: Graph[(Double, String), Int] = g.outerJoinVertices(prs.vertices){
   (v, title, r) => /* CODE */
 }
 ```

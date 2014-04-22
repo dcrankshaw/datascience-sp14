@@ -286,8 +286,8 @@ for (triplet <- graph.triplets) {
 Here is the solution:
 
 ```scala
-for (triplet <- graph.triplets) {
-  println( s"${triplet.srcAttr._1} likes ${triplet.dstAttr._1}")
+graph.triplets.foreach { t =>
+  println( s"${t.srcAttr._1} likes ${t.dstAttr._1}")
 }
 ```
 
