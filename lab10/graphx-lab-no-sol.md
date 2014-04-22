@@ -20,6 +20,8 @@ The GraphX API is currently only available in Scala but we plan to provide Java 
 -->
 ## Getting Started
 
+__Please answer the questions on the [response form](https://docs.google.com/a/berkeley.edu/forms/d/1rheE7Ls_mir6gD8JFo2em9XV71tPheBq9gwvxRZSfpQ/viewform) as you go through these exercises.__
+
 Because GraphX is a new addition to Spark, there is no Python API for it yet. This means you need to program in Scala to use GraphX.
 
 We will be using the Spark shell for this assignment, which is a modified Scala REPL (Read-Eval-Print Loop). You will be running Spark locally on your laptop for this assignment.
@@ -48,6 +50,7 @@ The `log4j.properties` file changes the default logging setting from `INFO` to `
 
 
 ## Introduction to the Scala shell
+
 
 This section is a quick crash course in Scala and the Scala shell and introduce you to functional programming with collections.
 If you have never programmed in Scala before, we recommend working through these as a gentle introduction to Scala in a REPL, but if you are already familiar with Scala you can skip to the next section.
@@ -562,6 +565,9 @@ with the code and to check out the [Programming Guide](http://spark.apache.org/d
 
 
 #FAQ
-####Where can I find documentation for the GraphX API?####
+####Where can I find documentation for the GraphX API?
 The scaladocs for GraphX (and the rest of Spark) can be found [here](http://spark.apache.org/docs/latest/api/graphx/index.html#org.apache.spark.graphx.package) on the Spark project website.
+
+###Where is the response form for this lab?
+[Response form](https://docs.google.com/a/berkeley.edu/forms/d/1rheE7Ls_mir6gD8JFo2em9XV71tPheBq9gwvxRZSfpQ/viewform)
 
